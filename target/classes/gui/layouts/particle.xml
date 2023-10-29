@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gui name="particle">
+    <references>
+        <ref name="slider" params="[max,name]">
+            <horizontalLayout align="CENTER" spacing="5">
+                <slider style="free" start="1" end="$PARAM(max)" width="200" height="30" id="$PARAM(name)"/>
+                <textLine height="30">$PARAM(name)</textLine>
+            </horizontalLayout>
+        </ref>
+    </references>
+
+    <elements>
+        <aligner x="0" y="0" width="100vw" height="100vh" alignX="RIGHT" alignY="TOP">
+            <verticalLayout showFrame="true" spacing="5" padding="5" align="LEFT">
+                <ref name="slider" params="[360,direction]"/>
+                <ref name="slider" params="[360,range]"/>
+                <ref name="slider" params="[10,speed]"/>
+                <ref name="slider" params="[359,hue]"/>
+                <space height="1%"/>
+                <separator width="100%" height="2"/>
+                <textLine height="30">Shape:</textLine>
+                <choiceGroup default="1" id="shape">
+                    <choice width="50" height="50">Triangle</choice>
+                    <choice width="50" height="50">Square</choice>
+                    <choice width="50" height="50">Circle</choice>
+                </choiceGroup>
+                <horizontalLayout width="100%">
+                    <button width="50%" height="30">1</button>
+                    <button width="50%" height="30">2</button>
+                </horizontalLayout>
+            </verticalLayout>
+        </aligner>
+    </elements>
+</gui>

@@ -1,0 +1,402 @@
+package dev.mv.engine.resources.types.drawable;
+
+import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.parsing.Parser;
+import dev.mv.engine.render.shared.Color;
+import dev.mv.engine.render.shared.DrawContext;
+import dev.mv.engine.resources.R;
+import dev.mv.engine.resources.types.border.Border;
+import dev.mv.engine.resources.types.border.Corner;
+import dev.mv.engine.utils.BinaryFunction;
+import dev.mv.utils.Utils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BinaryOperator;
+import java.util.function.Consumer;
+
+public class StaticDrawable extends Drawable {
+    private Consumer<DrawContext> drawFunc;
+    private int x, y;
+
+    private Color currentColor = Color.WHITE;
+    private Transformations transformations;
+    private DrawOptions drawOptions;
+
+    public StaticDrawable(int canvasWidth, int canvasHeight) {
+        super(canvasWidth, canvasHeight);
+    }
+
+    @Override
+    public void draw(DrawContext ctx, int x, int y, float rot, int ox, int oy) {
+        ctx.translate(x, y);
+        ctx.origin(ox, oy);
+        ctx.rotate(rot);
+        drawFunc.accept(ctx);
+        ctx.resetTransformations();
+    }
+
+    @Override
+    public Drawable parse(Parser parser) {
+        if (!parser.current().equals("canvas")) {
+            Exceptions.send("<drawable> MUST have <canvas> as the first tag!");
+            return null;
+        }
+        cnvsW = parser.intAttrib("width", 100);
+        cnvsH = parser.intAttrib("height", 100);
+        parser = parser.inner();
+
+        Transformations transformations = new Transformations();
+        DrawOptions drawOptions = new DrawOptions();
+
+        List<Consumer<DrawContext>> actions = new ArrayList<>();
+
+        do {
+            Consumer<DrawContext> action = parseTag(parser);
+            if (action != null) {
+                actions.add(action);
+            }
+        } while (parser.advance());
+
+        StaticDrawable sd = new StaticDrawable(cnvsW, cnvsH);
+        sd.drawFunc = ctx -> actions.forEach(c -> c.accept(ctx));
+        return sd;
+    }
+    
+    private Consumer<DrawContext> parseTag(Parser parser) {
+        return switch (parser.current()) {
+            case "color": { currentColor = Color.parse(parser.text()); yield null;}
+            case "rotate": { transformations.setRotation(parseRotate(parser)); yield null;}
+            case "scale": { parseScale(parser, transformations); yield null;}
+            case "translate": { parseTranslate(parser, transformations); yield null;}
+            case "origin": { parseOrigin(parser, transformations); yield null;}
+            case "fill": { drawOptions.setFilled(true); yield null;}
+            case "noFill": { drawOptions.setFilled(false); yield null;}
+            case "strokeWidth": { parseStroke(parser, drawOptions); yield null;}
+            case "border": { parseBorder(parser, drawOptions); yield null;}
+            default: yield parseShape(parser, transformations, drawOptions);
+        };
+    }
+    
+    private BinaryOperator<Integer> parseRotate(Parser parser) {
+        if (parser.hasAttrib("deg")) {
+            return parseValue(parser.attrib("deg"), false);
+        }
+        return (w, h) -> (int) Math.toDegrees(parseValue(parser.attrib("rad"), false).apply(w, h));
+    }
+
+    private void parseScale(Parser parser, Transformations transformations) {
+        if (parser.hasAttrib("x")) {
+            transformations.setScaleX(parseValueF(parser.attrib("x"), true));
+        }
+        if (parser.hasAttrib("y")) {
+            transformations.setScaleY(parseValueF(parser.attrib("y"), false));
+        }
+    }
+
+    private void parseTranslate(Parser parser, Transformations transformations) {
+        if (parser.hasAttrib("x")) {
+            transformations.setTransX(parseValue(parser.attrib("x"), true));
+        }
+        if (parser.hasAttrib("y")) {
+            transformations.setTransY(parseValue(parser.attrib("y"), false));
+        }
+    }
+
+    private void parseOrigin(Parser parser, Transformations transformations) {
+        if (parser.hasAttrib("x")) {
+            transformations.setOriginX(parseValue(parser.attrib("x"), true));
+        }
+        if (parser.hasAttrib("y")) {
+            transformations.setOriginY(parseValue(parser.attrib("y"), false));
+        }
+    }
+
+    private void parseStroke(Parser parser, DrawOptions drawOptions) {
+        drawOptions.setStrokeWidth(parseValue(parser.text(), true));
+    }
+
+    private void parseBorder(Parser parser, DrawOptions drawOptions) {
+        if (parser.hasAttrib("res")) {
+            drawOptions.setBorder(R.drawable.get(parser.attrib("res")));
+        }
+        drawOptions.setBorder(new Border() {
+            @Override
+            public void draw(DrawContext ctx, int x, int y, float rot, int ox, int oy) {}
+
+            @Override
+            public Corner createCorner(int index) {
+                return null;
+            }
+        }.parse(parser.inner()));
+    }
+
+    private Consumer<DrawContext> parseShape(Parser parser, Transformations transformations, DrawOptions drawOptions) {
+        return switch (parser.current()) {
+            case "triangle": yield parseTriangle(parser, transformations, drawOptions);
+            case "rect": yield parseRect(parser, transformations, drawOptions);
+            case "circle": yield parseCircle(parser, transformations, drawOptions);
+            case "ellipse": yield parseEllipse(parser, transformations, drawOptions);
+            case "arc": yield parseArc(parser, transformations, drawOptions);
+            default: yield c -> {};
+        };
+    }
+
+    private BinaryOperator<Integer> parseValue(String str, boolean preferWidth) {
+        if (str.endsWith("%")) {
+            char mod = str.charAt(str.length() - 2);
+            if (!Character.isDigit(mod)) {
+                int v = Integer.parseInt(str.substring(0, str.length() - 2));
+                if (mod == 'w') {
+                    return (w, h) -> Utils.getValue(v, w);
+                }
+                if (mod == 'h') {
+                    return (w, h) -> Utils.getValue(v, h);
+                }
+            }
+            int v = Integer.parseInt(str.substring(0, str.length() - 1));
+            if (preferWidth) {
+                return (w, h) -> Utils.getValue(v, w);
+            }
+            return (w, h) -> Utils.getValue(v, h);
+        }
+
+        final int v = Integer.parseInt(str);
+        return (w, h) -> v;
+    }
+
+    private BinaryFunction<Integer, Float> parseValueF(String str, boolean preferWidth) {
+        if (str.endsWith("%")) {
+            char mod = str.charAt(str.length() - 2);
+            if (!Character.isDigit(mod)) {
+                float v = Float.parseFloat(str.substring(0, str.length() - 2));
+                if (mod == 'w') {
+                    return (w, h) -> Utils.getValue(v, w);
+                }
+                if (mod == 'h') {
+                    return (w, h) -> Utils.getValue(v, h);
+                }
+            }
+            float v = Float.parseFloat(str.substring(0, str.length() - 1));
+            if (preferWidth) {
+                return (w, h) -> Utils.getValue(v, w);
+            }
+            return (w, h) -> Utils.getValue(v, h);
+        }
+
+        final float v = Float.parseFloat(str);
+        return (w, h) -> v;
+    }
+
+    private Consumer<DrawContext> parseTriangle(Parser parser, Transformations transformations, DrawOptions drawOptions) {
+        var x1 = parseValue(parser.attrib("x1", "0"), true);
+        var y1 = parseValue(parser.attrib("y1", "0"), false);
+        var x2 = parseValue(parser.attrib("x2", "10"), true);
+        var y2 = parseValue(parser.attrib("y2", "10"), false);
+        var x3 = parseValue(parser.attrib("x3", "20"), true);
+        var y3 = parseValue(parser.attrib("y3", "0"), false);
+
+        if (drawOptions.filled()) {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> (x1.apply(getCnvsW(), getCnvsH()) + x2.apply(getCnvsW(), getCnvsH()) + x3.apply(getCnvsW(), getCnvsH())) / 3,
+                        (wi, he) -> (y1.apply(getCnvsW(), getCnvsH()) + y2.apply(getCnvsW(), getCnvsH()) + y3.apply(getCnvsW(), getCnvsH())) / 3
+                );
+
+                int tx1 = x1.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty1 = y1.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH());
+                int tx2 = (int) (x2.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH())) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty2 = (int) (y2.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH())) + transformations.transY().apply(getCnvsW(), getCnvsH());
+                int tx3 = (int) (x3.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH())) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty3 = (int) (y3.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH())) + transformations.transY().apply(getCnvsW(), getCnvsH());
+
+                c.color(currentColor);
+                c.triangle(tx1, ty1, tx2, ty2, tx3, ty3, transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                //drawOptions.border().draw(c, tx, ty, tw, th);
+            };
+        } else {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> (x1.apply(getCnvsW(), getCnvsH()) + x2.apply(getCnvsW(), getCnvsH()) + x3.apply(getCnvsW(), getCnvsH())) / 3,
+                        (wi, he) -> (y1.apply(getCnvsW(), getCnvsH()) + y2.apply(getCnvsW(), getCnvsH()) + y3.apply(getCnvsW(), getCnvsH())) / 3
+                );
+
+                int tx1 = x1.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty1 = y1.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH());
+                int tx2 = (int) (x2.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH())) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty2 = (int) (y2.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH())) + transformations.transY().apply(getCnvsW(), getCnvsH());
+                int tx3 = (int) (x3.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH())) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty3 = (int) (y3.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH())) + transformations.transY().apply(getCnvsW(), getCnvsH());
+
+                c.color(currentColor);
+                c.voidTriangle(tx1, ty1, tx2, ty2, tx3, ty3, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                //drawOptions.border().draw(c, tx, ty, tw, th);
+            };
+        }
+    }
+
+    private Consumer<DrawContext> parseRect(Parser parser, Transformations transformations, DrawOptions drawOptions) {
+        var x = parseValue(parser.attrib("x", "0"), true);
+        var y = parseValue(parser.attrib("y", "0"), false);
+        var w = parseValue(parser.attrib("width", "10"), true);
+        var h = parseValue(parser.attrib("height", "10"), false);
+
+        if (drawOptions.filled()) {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()) + w.apply(getCnvsW(), getCnvsH()) / 2,
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH()) + h.apply(getCnvsW(), getCnvsH()) / 2
+                );
+
+                int tx = x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty = y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH());
+                int tw = (int) (w.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int th = (int) (h.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH()));
+
+                c.color(currentColor);
+                c.rectangle(tx, ty, tw, th, transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx, ty, tw, th, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        } else {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()) + w.apply(getCnvsW(), getCnvsH()) / 2,
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH()) + h.apply(getCnvsW(), getCnvsH()) / 2
+                );
+
+                int tx = x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH());
+                int ty = y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH());
+                int tw = (int) (w.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int th = (int) (h.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH()));
+
+                c.color(currentColor);
+                c.voidRectangle(tx, ty, tw, th, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx, ty, tw, th, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        }
+    }
+
+    private Consumer<DrawContext> parseCircle(Parser parser, Transformations transformations, DrawOptions drawOptions) {
+        var x = parseValue(parser.attrib("x", "0"), true);
+        var y = parseValue(parser.attrib("y", "0"), false);
+        var r = parseValue(parser.attrib("radius", "10"), true);
+
+        if (drawOptions.filled()) {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()),
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH())
+                );
+
+                int tx = (int) (x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int ty = (int) (y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int tr = (int) (r.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+
+                c.color(currentColor);
+                c.circle(tx, ty, tr, tr, transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        } else {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()),
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH())
+                );
+
+                int tx = (int) (x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int ty = (int) (y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int tr = (int) (r.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+
+                c.color(currentColor);
+                c.voidCircle(tx, ty, tr, tr, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        }
+    }
+
+    private Consumer<DrawContext> parseEllipse(Parser parser, Transformations transformations, DrawOptions drawOptions) {
+        var x = parseValue(parser.attrib("x", "0"), true);
+        var y = parseValue(parser.attrib("y", "0"), false);
+        var rx = parseValue(parser.attrib("radiusX", "10"), true);
+        var ry = parseValue(parser.attrib("radiusY", "20"), false);
+
+        if (drawOptions.filled()) {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()),
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH())
+                );
+
+                int tx = (int) (x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int ty = (int) (y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int trax = (int) (rx.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int tray = (int) (ry.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH()));
+
+                c.color(currentColor);
+                c.ellipse(tx, ty, trax, tray, Math.max(trax, tray), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx - trax, ty - tray, trax, tray, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        } else {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()),
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH())
+                );
+
+                int tx = (int) (x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int ty = (int) (y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int trax = (int) (rx.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int tray = (int) (ry.apply(getCnvsW(), getCnvsH()) * transformations.scaleY().apply(getCnvsW(), getCnvsH()));
+
+                c.color(currentColor);
+                c.voidEllipse(tx, ty, trax, tray, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), Math.max(trax, tray), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx - trax, ty - tray, trax, tray, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        }
+    }
+
+    private Consumer<DrawContext> parseArc(Parser parser, Transformations transformations, DrawOptions drawOptions) {
+        var x = parseValue(parser.attrib("x", "0"), true);
+        var y = parseValue(parser.attrib("y", "0"), false);
+        var r = parseValue(parser.attrib("radius", "10"), true);
+        var rn = parseValue(parser.attrib("range", "90"), true);
+        var s = parseValue(parser.attrib("start", "0"), true);
+
+        if (drawOptions.filled()) {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()),
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH())
+                );
+
+                int tx = (int) (x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int ty = (int) (y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int tr = (int) (r.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int trn = rn.apply(getCnvsW(), getCnvsH());
+                int ts = s.apply(getCnvsW(), getCnvsH());
+
+                c.color(currentColor);
+                c.arc(tx, ty, tr, trn, ts, tr / (360f / trn), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        } else {
+            return c -> {
+                transformations.setOriginsIfNull(
+                        (wi, he) -> x.apply(getCnvsW(), getCnvsH()),
+                        (wi, he) -> y.apply(getCnvsW(), getCnvsH())
+                );
+
+                int tx = (int) (x.apply(getCnvsW(), getCnvsH()) + transformations.transX().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int ty = (int) (y.apply(getCnvsW(), getCnvsH()) + transformations.transY().apply(getCnvsW(), getCnvsH()) - transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int tr = (int) (r.apply(getCnvsW(), getCnvsH()) * transformations.scaleX().apply(getCnvsW(), getCnvsH()));
+                int trn = rn.apply(getCnvsW(), getCnvsH());
+                int ts = s.apply(getCnvsW(), getCnvsH());
+
+                c.color(currentColor);
+                c.voidArc(tx, ty, tr, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), trn, ts, tr / (360f / trn), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+                drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+            };
+        }
+    }
+}

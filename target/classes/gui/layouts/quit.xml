@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<gui name="quit">
+    <script src="dev.mv.engine.test.Manager"/>
+    <style src="testLayout.mvss"/>
+
+    <variables>
+        <var name="height">5vh</var>
+    </variables>
+
+    <elements>
+        <aligner x="0" y="0" width="100vw" height="100vh" alignX="CENTER" alignY="CENTER">
+            <verticalLayout spacing="10" align="CENTER" showFrame="true" padding="5">
+                <textLine height="$VAR(height)">Are you sure you want to quit?</textLine>
+                <horizontalLayout spacing="5" showFrame="false" align="CENTER">
+                    <button height="$VAR(height)" width="5vw" id="yes">yes</button>
+                    <button height="$VAR(height)" width="5vw" id="no">no</button>
+                </horizontalLayout>
+            </verticalLayout>
+        </aligner>
+    </elements>
+</gui>

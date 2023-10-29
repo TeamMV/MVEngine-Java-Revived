@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<page name="main">
+    <layouts>
+        <layout name="myGui"/>
+        <layout name="quit"/>
+        <layout name="particle"/>
+    </layouts>
+    <actions>
+        <trigger name="quit" listen="myGui.quitButton@onclick[release]">
+            <open name="quit">
+                <focus leave="quit.no@onclick[release]"/>
+            </open>
+        </trigger>
+        <trigger name="quitGame" listen="quit.yes@onclick[release]">
+            <call handler="myGui.exit(0)"/>
+        </trigger>
+        <trigger name="cancelQuit" listen="quit.no@onclick[release]">
+            <call handler="myGui.open()"/>
+        </trigger>
+        <trigger name="hello" listen="myGui.chromaButton@onclick[release]">
+            <call handler="myGui.hello()"/>
+        </trigger>
+    </actions>
+</page>

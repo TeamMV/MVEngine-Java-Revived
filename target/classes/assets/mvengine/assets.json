@@ -1,0 +1,21 @@
+{
+  "modid": {
+    "item": {
+      "itemId": {
+        "texture": {
+        },
+        "animation": {
+        },
+        "sound": {
+        }
+      },
+      "itemId2": {
+        "model": {
+        }
+      }
+    },
+    "music": {
+      "music1": "/sound/11.mp3"
+    }
+  }
+}
