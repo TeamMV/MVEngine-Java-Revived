@@ -11,6 +11,9 @@ layout (location = 5) in float aTexID;
 layout (location = 6) in vec4 aCanvasCoords;
 layout (location = 7) in vec2 aCanvasData;
 layout (location = 8) in float aUseCam;
+layout (location = 9) in float aTransRot;
+layout (location = 10) in vec2 aTransTrans;
+layout (location = 11) in vec2 aTransOrigin;
 out vec4 fColor;
 out vec2 fTexCoords;
 out float fTexID;
@@ -42,6 +45,17 @@ void main() {
         pos = rot * pos;
         pos += aRotationOrigin;
     }
+
+    if (aTransRot != 0) {
+        mat2 rot;
+        rot[0] = vec2(cos(aTransRot), - sin(aTransRot));
+        rot[1] = vec2(sin(aTransRot), cos(aTransRot));
+        pos -= aTransOrigin;
+        pos = rot * pos;
+        pos += aTransOrigin;
+    }
+
+    pos = pos + aTransTrans;
 
     if (aUseCam == 1) {
         gl_Position = uProjection * uView * vec4(pos, aVertPos.z, 1.0);

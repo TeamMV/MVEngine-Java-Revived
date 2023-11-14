@@ -1,7 +1,6 @@
 package dev.mv.engine.resources.types.drawable;
 
 import dev.mv.engine.resources.Resource;
-import dev.mv.engine.resources.types.border.Border;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.utils.BinaryFunction;
@@ -11,6 +10,7 @@ import java.util.function.*;
 
 public abstract class Drawable extends Into implements Resource {
     protected int cnvsW, cnvsH;
+    protected String resId;
 
     public Drawable(int canvasWidth, int canvasHeight) {
         this.cnvsW = canvasWidth;
@@ -43,11 +43,31 @@ public abstract class Drawable extends Into implements Resource {
         this.cnvsH = cnvsH;
     }
 
+    @Override
+    public String resId() {
+        return resId;
+    }
+
+    @Override
+    public Type type() {
+        return Type.DRAWABLE;
+    }
+
     protected static class Transformations {//all take in width and height and return the value in px
         private BinaryOperator<Integer> transX, transY;
         private BinaryFunction<Integer, Float> scaleX, scaleY;
         private BinaryOperator<Integer> rotation;
         private BinaryOperator<Integer> originX, originY;
+
+        public Transformations() {
+            transX = (w, h) -> 0;
+            transY = (w, h) -> 0;
+            scaleX = (w, h) -> 1f;
+            scaleY = (w, h) -> 1f;
+            rotation = (w, h) -> 0;
+            originX = (w, h) -> w / 2;
+            originY = (w, h) -> h / 2;
+        }
 
         public BinaryOperator<Integer> transX() {
             return transX;
@@ -112,9 +132,9 @@ public abstract class Drawable extends Into implements Resource {
     }
 
     protected static class DrawOptions {
-        private boolean filled;
-        private BinaryOperator<Integer> strokeWidth;
-        private Drawable border;
+        private boolean filled = true;
+        private BinaryOperator<Integer> strokeWidth = (w, h) -> 2;
+        private Drawable border = null;
 
         public boolean filled() {
             return filled;

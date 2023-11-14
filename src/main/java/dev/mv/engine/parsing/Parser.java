@@ -6,17 +6,23 @@ import dev.mv.utils.Utils;
 
 import java.io.InputStream;
 
-public interface Parser {
+public interface Parser extends Copyable<Parser> {
     void load(InputStream stream);
 
     String root();
 
     default Parser requireRoot(String expected) {
         if (!root().equals(expected)) {
-            Exceptions.send(new IllegalStateException("Expected root tag <" + expected + ">, found <" + root() + ">."));
+            Exceptions.send("INVALID_TAG", "root", expected, root());
         }
 
         return this;
+    }
+
+    default void requireCurrent(String expected) {
+        if (!current().equals(expected)) {
+            Exceptions.send("INVALID_TAG", "tag", expected, current());
+        }
     }
 
     boolean advance();

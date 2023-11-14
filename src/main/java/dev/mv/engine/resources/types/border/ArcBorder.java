@@ -3,12 +3,10 @@ package dev.mv.engine.resources.types.border;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.DrawContext;
 
-import java.util.function.BinaryOperator;
+public class ArcBorder extends Border{
+    private int radius, range, start;
 
-public class CircleBorder extends Border {
-    private int radius;
-
-    public CircleBorder(int strokeWidth, Color color) {
+    public ArcBorder(int strokeWidth, Color color, int range, int start) {
         super(strokeWidth, color);
         createCorners();
     }
@@ -24,7 +22,7 @@ public class CircleBorder extends Border {
     public Corner createCorner(int index) {
         if (index == 0) {
             return new Corner(radius / 2, radius / 2, (ctx, x, y, strokeWidth, rotation, ox, oy) -> {
-                ctx.voidCircle(x + radius, y + radius, this.radius, strokeWidth, radius, rotation, ox, oy);
+                ctx.voidArc(x + radius, y + radius, this.radius, strokeWidth, range, start, radius, rotation, ox, oy);
             });
         }
         return new Corner(radius / 2, radius / 2, (ctx, x, y, strokeWidth, rotation, ox, oy) -> {});

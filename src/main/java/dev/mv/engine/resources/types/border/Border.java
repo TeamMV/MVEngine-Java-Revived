@@ -1,5 +1,6 @@
 package dev.mv.engine.resources.types.border;
 
+import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.parsing.XMLParser;
 import dev.mv.engine.render.shared.Color;
@@ -20,8 +21,17 @@ public abstract class Border extends StaticDrawable {//1--2
         this.color = color;
     }
 
+    public Border(int strokeWidth, Color color) {
+        super(100, 100);
+        this.strokeWidth = strokeWidth;
+        this.color = color;
+    }
+
     public Border() {
         super(100, 100);
+    }
+
+    protected void createCorners() {
         for (int i = 0; i < 4; i++) {
             corners[i] = createCorner(i);
         }
@@ -30,17 +40,22 @@ public abstract class Border extends StaticDrawable {//1--2
     public abstract Corner createCorner(int index);
 
     @Override
+    public void draw(DrawContext ctx, int x, int y, float rot, int ox, int oy) {
+        draw(ctx, x, y, getCnvsW(), getCnvsH(), rot, ox, oy);
+    }
+
+    @Override
     public void draw(DrawContext ctx, int x, int y, int width, int height, float rot, int ox, int oy) {
         ctx.color(color);
-        corners[0].drawFunc().draw(ctx, x, y, corners[0].radius(), strokeWidth, rot, ox, oy);
-        corners[1].drawFunc().draw(ctx, x, y + height, corners[1].radius(), strokeWidth, rot, ox, oy);
-        corners[2].drawFunc().draw(ctx, x + width, y + height, corners[2].radius(), strokeWidth, rot, ox, oy);
-        corners[3].drawFunc().draw(ctx, x + width, y, corners[3].radius(), strokeWidth, rot, ox, oy);
+        corners[0].drawFunc().draw(ctx, x, y, strokeWidth, rot, ox, oy);
+        corners[1].drawFunc().draw(ctx, x, y + height, strokeWidth, rot, ox, oy);
+        corners[2].drawFunc().draw(ctx, x + width, y + height, strokeWidth, rot, ox, oy);
+        corners[3].drawFunc().draw(ctx, x + width, y, strokeWidth, rot, ox, oy);
 
-        ctx.rectangle(x + corners[0].radius(), y, width - corners[0].radius() - corners[3].radius(), strokeWidth, rot, ox, oy);
-        ctx.rectangle(x + corners[1].radius(), y + height - strokeWidth, width - corners[1].radius() - corners[2].radius(), strokeWidth, rot, ox, oy);
-        ctx.rectangle(x, y + corners[0].radius(), strokeWidth, height - corners[0].radius() - corners[1].radius(), rot, ox, oy);
-        ctx.rectangle(x + width - strokeWidth, y + corners[3].radius(), strokeWidth, height - corners[3].radius() - corners[2].radius(), rot, ox, oy);
+        ctx.rectangle(x + corners[0].radiusX(), y, width - corners[0].radiusX() - corners[3].radiusX(), strokeWidth, rot, ox, oy);
+        ctx.rectangle(x + corners[1].radiusX(), y + height - strokeWidth, width - corners[1].radiusX() - corners[2].radiusX(), strokeWidth, rot, ox, oy);
+        ctx.rectangle(x, y + corners[0].radiusY(), strokeWidth, height - corners[0].radiusY() - corners[1].radiusY(), rot, ox, oy);
+        ctx.rectangle(x + width - strokeWidth, y + corners[3].radiusY(), strokeWidth, height - corners[3].radiusY() - corners[2].radiusY(), rot, ox, oy);
     }
 
     public int getStrokeWidth() {
@@ -61,9 +76,21 @@ public abstract class Border extends StaticDrawable {//1--2
 
     @Override
     public Border parse(Parser parser) {
-        parser = parser.requireRoot("border").inner();
+        parser.requireCurrent("border");
         int strokeWidth = parser.intAttrib("strokeWidth", 3);
         Color color = Color.parse(parser.attrib("color", "255, 255, 255"));
+        String type = parser.attrib("type", "new");
+        return switch (type) {
+            default -> parseCustom(parser.inner());
+            case "rect" -> new RectangleBorder(strokeWidth, color);
+            case "roundRect" -> new RoundRectangleBorder(strokeWidth, color, parser.intAttrib("radius", 10));
+            case "circle" -> new CircleBorder(strokeWidth, color);
+            case "ellipse" -> new EllispeBorder(strokeWidth, color);
+            case "arc" -> new ArcBorder(strokeWidth, color, parser.intAttrib("range", 90), parser.intAttrib("start", 0));
+        };
+    }
+
+    private Border parseCustom(Parser parser) {
         return null;
     }
 

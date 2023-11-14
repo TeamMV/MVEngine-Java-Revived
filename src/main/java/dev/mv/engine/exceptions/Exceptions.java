@@ -65,7 +65,7 @@ public class Exceptions {
         if (linkedException != null) {
             send(linkedException.create(args));
         } else {
-            send(new RuntimeException("Unknown exception id!"));
+            send(new RuntimeException("Unknown exception id: " + id));
         }
     }
 

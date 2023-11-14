@@ -58,7 +58,7 @@ public class XMLParser implements Parser {
     @Override
     public boolean advance() {
         if (nodeList == null) return false;
-        if (nodeList.getLength() >= currentIdx + 1) return false;
+        if (currentIdx + 1 >= nodeList.getLength()) return false;
         while (true) {
             Node node = nodeList.item(currentIdx++);
             if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -102,5 +102,16 @@ public class XMLParser implements Parser {
     public String attrib(String name) {
         if (!current.hasAttribute(name)) return null;
         return current.getAttribute(name);
+    }
+
+    @Override
+    public Parser copy() {
+        XMLParser parser = new XMLParser();
+        parser.currentIdx = currentIdx;
+        parser.current = current;
+        parser.root = root;
+        parser.nodeList = nodeList;
+
+        return parser;
     }
 }

@@ -1,6 +1,7 @@
 package dev.mv.engine.resources.types.drawable;
 
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.exceptions.InvalidGuiFileException;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.DrawContext;
@@ -20,11 +21,21 @@ public class StaticDrawable extends Drawable {
     private int x, y;
 
     private Color currentColor = Color.WHITE;
-    private Transformations transformations;
-    private DrawOptions drawOptions;
+    private final Transformations transformations;
+    private final DrawOptions drawOptions;
 
     public StaticDrawable(int canvasWidth, int canvasHeight) {
         super(canvasWidth, canvasHeight);
+        transformations = new Transformations();
+        drawOptions = new DrawOptions();
+    }
+
+    protected Transformations getTransformations() {
+        return transformations;
+    }
+
+    protected DrawOptions getDrawOptions() {
+        return drawOptions;
     }
 
     @Override
@@ -32,22 +43,33 @@ public class StaticDrawable extends Drawable {
         ctx.translate(x, y);
         ctx.origin(ox, oy);
         ctx.rotate(rot);
+
+        drawOptions.setBorder(null);
+        drawOptions.setFilled(false);
+        drawOptions.setStrokeWidth((w, h) -> 2);
+        transformations.setOriginX(null);
+        transformations.setOriginY(null);
+        transformations.setScaleX((w, h) -> 1f);
+        transformations.setScaleY((w, h) -> 1f);
+        transformations.setTransX((w, h) -> 0);
+        transformations.setTransY((w, h) -> 0);
+        transformations.setRotation((w, h) -> 0);
+
         drawFunc.accept(ctx);
         ctx.resetTransformations();
     }
 
     @Override
     public Drawable parse(Parser parser) {
+        resId = parser.requireAttrib("resId");
+        parser = parser.inner();
         if (!parser.current().equals("canvas")) {
-            Exceptions.send("<drawable> MUST have <canvas> as the first tag!");
+            Exceptions.send(new InvalidGuiFileException("<drawable> MUST have <canvas> as the first tag!"));
             return null;
         }
         cnvsW = parser.intAttrib("width", 100);
         cnvsH = parser.intAttrib("height", 100);
         parser = parser.inner();
-
-        Transformations transformations = new Transformations();
-        DrawOptions drawOptions = new DrawOptions();
 
         List<Consumer<DrawContext>> actions = new ArrayList<>();
 
@@ -58,22 +80,23 @@ public class StaticDrawable extends Drawable {
             }
         } while (parser.advance());
 
-        StaticDrawable sd = new StaticDrawable(cnvsW, cnvsH);
-        sd.drawFunc = ctx -> actions.forEach(c -> c.accept(ctx));
-        return sd;
+        this.drawFunc = ctx -> actions.forEach(c -> c.accept(ctx));
+        return this;
     }
     
     private Consumer<DrawContext> parseTag(Parser parser) {
+        Parser originalParser = parser.copy();
+
         return switch (parser.current()) {
-            case "color": { currentColor = Color.parse(parser.text()); yield null;}
-            case "rotate": { transformations.setRotation(parseRotate(parser)); yield null;}
-            case "scale": { parseScale(parser, transformations); yield null;}
-            case "translate": { parseTranslate(parser, transformations); yield null;}
-            case "origin": { parseOrigin(parser, transformations); yield null;}
-            case "fill": { drawOptions.setFilled(true); yield null;}
-            case "noFill": { drawOptions.setFilled(false); yield null;}
-            case "strokeWidth": { parseStroke(parser, drawOptions); yield null;}
-            case "border": { parseBorder(parser, drawOptions); yield null;}
+            case "color": { yield ctx -> currentColor = Color.parse(originalParser.text()); }
+            case "rotate": { yield ctx -> transformations.setRotation(parseRotate(originalParser)); }
+            case "scale": { yield parseScale(originalParser, transformations); }
+            case "translate": { yield parseTranslate(originalParser, transformations); }
+            case "origin": { yield parseOrigin(originalParser, transformations); }
+            case "fill": { drawOptions.setFilled(true); yield null; }
+            case "noFill": { drawOptions.setFilled(false); yield null; }
+            case "strokeWidth": { yield parseStroke(originalParser, drawOptions); }
+            case "border": { yield parseBorder(originalParser, drawOptions); }
             default: yield parseShape(parser, transformations, drawOptions);
         };
     }
@@ -85,50 +108,102 @@ public class StaticDrawable extends Drawable {
         return (w, h) -> (int) Math.toDegrees(parseValue(parser.attrib("rad"), false).apply(w, h));
     }
 
-    private void parseScale(Parser parser, Transformations transformations) {
+    private Consumer<DrawContext> parseScale(Parser parser, Transformations transformations) {
+        BinaryFunction<Integer, Float> x;
+        BinaryFunction<Integer, Float> y;
+
         if (parser.hasAttrib("x")) {
-            transformations.setScaleX(parseValueF(parser.attrib("x"), true));
+            x = parseValueF(parser.attrib("x"), true);
+        } else {
+            x = null;
         }
         if (parser.hasAttrib("y")) {
-            transformations.setScaleY(parseValueF(parser.attrib("y"), false));
+            y = parseValueF(parser.attrib("y"), false);
+        } else {
+            y = null;
         }
+
+        return ctx -> {
+            transformations.setScaleX(x);
+            transformations.setScaleX(y);
+        };
     }
 
-    private void parseTranslate(Parser parser, Transformations transformations) {
+    private Consumer<DrawContext> parseTranslate(Parser parser, Transformations transformations) {
+        BinaryOperator<Integer> x, y;
+
         if (parser.hasAttrib("x")) {
-            transformations.setTransX(parseValue(parser.attrib("x"), true));
+            x = parseValue(parser.attrib("x"), true);
+        } else {
+            x = null;
         }
         if (parser.hasAttrib("y")) {
-            transformations.setTransY(parseValue(parser.attrib("y"), false));
+            y = parseValue(parser.attrib("y"), false);
+        } else {
+            y = null;
         }
+
+        return ctx -> {
+            transformations.setTransX(x);
+            transformations.setTransX(y);
+        };
     }
 
-    private void parseOrigin(Parser parser, Transformations transformations) {
+    private Consumer<DrawContext> parseOrigin(Parser parser, Transformations transformations) {
+        if (parser.hasAttrib("center")) {
+            String center = parser.attrib("center");
+            if (center.equals("canvas")) {
+                return ctx -> {
+                    transformations.setOriginX((w, h) -> w / 2);
+                    transformations.setOriginY((w, h) -> h / 2);
+                };
+            } else if (center.equals("shape")) {
+                return ctx -> {
+                    transformations.setOriginX(null);
+                    transformations.setOriginY(null);
+                };
+            }
+        }
+
+        BinaryOperator<Integer> x, y;
+
         if (parser.hasAttrib("x")) {
-            transformations.setOriginX(parseValue(parser.attrib("x"), true));
+            x = parseValue(parser.attrib("x"), true);
+        } else {
+            x = null;
         }
         if (parser.hasAttrib("y")) {
-            transformations.setOriginY(parseValue(parser.attrib("y"), false));
+            y = parseValue(parser.attrib("y"), false);
+        } else {
+            y = null;
         }
+
+        return ctx -> {
+            transformations.setOriginX(x);
+            transformations.setOriginX(y);
+        };
     }
 
-    private void parseStroke(Parser parser, DrawOptions drawOptions) {
-        drawOptions.setStrokeWidth(parseValue(parser.text(), true));
+    private Consumer<DrawContext> parseStroke(Parser parser, DrawOptions drawOptions) {
+        var value = parseValue(parser.text(), true);
+        return ctx -> drawOptions.setStrokeWidth(value);
     }
 
-    private void parseBorder(Parser parser, DrawOptions drawOptions) {
+    private Consumer<DrawContext> parseBorder(Parser parser, DrawOptions drawOptions) {
         if (parser.hasAttrib("res")) {
             drawOptions.setBorder(R.drawable.get(parser.attrib("res")));
         }
-        drawOptions.setBorder(new Border() {
+        var border = new Border() {
             @Override
             public void draw(DrawContext ctx, int x, int y, float rot, int ox, int oy) {}
 
             @Override
             public Corner createCorner(int index) {
                 return null;
-            }
-        }.parse(parser.inner()));
+            } //gets overridden in the next line
+        }.parse(parser);
+
+        return ctx -> drawOptions.setBorder(border);
     }
 
     private Consumer<DrawContext> parseShape(Parser parser, Transformations transformations, DrawOptions drawOptions) {
@@ -256,6 +331,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.rectangle(tx, ty, tw, th, transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx, ty, tw, th, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         } else {
@@ -272,6 +349,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.voidRectangle(tx, ty, tw, th, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx, ty, tw, th, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         }
@@ -295,6 +374,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.circle(tx, ty, tr, tr, transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         } else {
@@ -310,6 +391,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.voidCircle(tx, ty, tr, tr, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         }
@@ -335,6 +418,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.ellipse(tx, ty, trax, tray, Math.max(trax, tray), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - trax, ty - tray, trax, tray, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         } else {
@@ -351,6 +436,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.voidEllipse(tx, ty, trax, tray, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), Math.max(trax, tray), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - trax, ty - tray, trax, tray, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         }
@@ -378,6 +465,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.arc(tx, ty, tr, trn, ts, tr / (360f / trn), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         } else {
@@ -395,6 +484,8 @@ public class StaticDrawable extends Drawable {
 
                 c.color(currentColor);
                 c.voidArc(tx, ty, tr, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), trn, ts, tr / (360f / trn), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
             };
         }

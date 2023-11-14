@@ -10,8 +10,14 @@ public class FrameAnimation extends Animation {
     private TextureRegion current;
 
     private FrameAnimation(SpriteCollection sprites) {
+        this(sprites, Resource.NO_R);
+    }
+
+    private FrameAnimation(SpriteCollection sprites, String resId) {
         this.sprites = sprites;
         this.current = sprites.getSprite(0);
+        this.resId = resId;
+        register();
     }
 
     @Override

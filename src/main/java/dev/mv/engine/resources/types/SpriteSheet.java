@@ -4,6 +4,7 @@ import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.parsing.XMLParser;
 import dev.mv.engine.render.shared.texture.Texture;
+import dev.mv.engine.resources.Resource;
 
 import java.awt.*;
 import java.io.InputStream;
@@ -11,12 +12,15 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpriteSheet {
+public class SpriteSheet implements Resource {
+    private String resId;
     private Map<String, SpriteCollection> collections;
 
     public SpriteSheet(Texture texture, InputStream desc) {
         collections = new HashMap<>();
-        Parser parser = new XMLParser(desc).requireRoot("sprites").inner();
+        Parser parser = new XMLParser(desc).requireRoot("sprites");
+        resId = parser.requireAttrib("resId");
+        parser = parser.inner();
         Point following = new Point(0, 0);
 
         do {
@@ -64,5 +68,15 @@ public class SpriteSheet {
 
     public SpriteCollection getCollection(String name) {
         return collections.get(name);
+    }
+
+    @Override
+    public String resId() {
+        return resId;
+    }
+
+    @Override
+    public Type type() {
+        return Type.SPRITE_SHEET;
     }
 }

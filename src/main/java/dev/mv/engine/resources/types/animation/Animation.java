@@ -18,6 +18,8 @@ public abstract class Animation implements Resource {
     protected float rotation;
     protected int originX, originY;
 
+    String resId;
+
     private final Predicate<Integer> timingAction = i -> {
         iteration = i;
         boolean finished = apply(currentTime, i);
@@ -143,5 +145,15 @@ public abstract class Animation implements Resource {
 
     public void setOriginY(int originY) {
         this.originY = originY;
+    }
+
+    @Override
+    public String resId() {
+        return resId;
+    }
+
+    @Override
+    public Type type() {
+        return Type.ANIMATION;
     }
 }

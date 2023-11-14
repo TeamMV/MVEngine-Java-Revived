@@ -10,8 +10,7 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.openal.AL11.*;
 
-public sealed class Sound implements HeavyResource permits Music {
-
+public class Sound implements HeavyResource {
     protected Audio audio;
     protected boolean loop;
     protected State state;
@@ -19,11 +18,19 @@ public sealed class Sound implements HeavyResource permits Music {
     protected String path;
     protected boolean loaded;
     int alID, id, buffer;
+    
+    private String resId;
 
     Sound(Audio audio, String path, boolean loop) {
+        this(audio, path, loop, Resource.NO_R);
+    }
+
+    Sound(Audio audio, String path, boolean loop, String resId) {
         this.audio = audio;
         this.loop = loop;
         this.path = path;
+        this.resId = resId;
+        register();
     }
 
     @Override
@@ -109,6 +116,16 @@ public sealed class Sound implements HeavyResource permits Music {
 
     public void setVolume(float volume) {
         this.volume = volume;
+    }
+
+    @Override
+    public String resId() {
+        return resId;
+    }
+
+    @Override
+    public Type type() {
+        return Type.SOUND;
     }
 
     public enum State {

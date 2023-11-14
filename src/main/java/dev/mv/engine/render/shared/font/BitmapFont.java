@@ -21,9 +21,17 @@ public class BitmapFont implements Resource {
     private int maxWidth = 0, maxHeight = 0, maxXOff = 0, maxYOff = 0;
     private int spacing = 0;
 
+    private String resId;
+
     public BitmapFont(String pngFileStream, String fntFileStream) throws IOException {
+        this(pngFileStream, fntFileStream, Resource.NO_R);
+    }
+
+    public BitmapFont(String pngFileStream, String fntFileStream, String resId) throws IOException {
         bitmap = loadTexture(pngFileStream);
         chars = createCharacters(fntFileStream);
+        this.resId = resId;
+        register();
     }
 
     private Texture loadTexture(String pngFileStream) throws IOException {
@@ -212,5 +220,15 @@ public class BitmapFont implements Resource {
 
     private float multiplier(int height) {
         return (float) height / (float) maxHeight;
+    }
+
+    @Override
+    public String resId() {
+        return resId;
+    }
+
+    @Override
+    public Type type() {
+        return Type.FONT;
     }
 }

@@ -5,10 +5,11 @@ import dev.mv.engine.render.shared.DrawContext;
 import java.util.function.Consumer;
 
 public record Corner(
-        int radius,
+        int radiusX,
+        int radiusY,
         DrawFunc drawFunc
 ) {
     interface DrawFunc {
-        void draw(DrawContext ctx, int x, int y, int radius, int strokeWidth, float rotation, int ox, int oy);
+        void draw(DrawContext ctx, int x, int y, int strokeWidth, float rotation, int ox, int oy);
     }
 }
