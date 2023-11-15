@@ -1,11 +1,14 @@
 package dev.mv.engine.resources.types.drawable;
 
+import dev.mv.engine.parsing.XMLParser;
 import dev.mv.engine.resources.Resource;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.utils.BinaryFunction;
 import dev.mv.engine.utils.Into;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.*;
 
 public abstract class Drawable extends Into implements Resource {
@@ -17,7 +20,7 @@ public abstract class Drawable extends Into implements Resource {
         this.cnvsH = canvasHeight;
     }
 
-    public abstract Drawable parse(Parser parser);
+    public abstract void parse(Parser parser);
 
     public abstract void draw(DrawContext ctx, int x, int y, float rot, int ox, int oy);
 
@@ -159,5 +162,12 @@ public abstract class Drawable extends Into implements Resource {
         public void setBorder(Drawable border) {
             this.border = border;
         }
+    }
+
+    public Drawable() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        parse(new XMLParser(inputStream));
     }
 }

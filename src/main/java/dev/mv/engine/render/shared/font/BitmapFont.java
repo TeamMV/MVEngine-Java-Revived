@@ -1,6 +1,7 @@
 package dev.mv.engine.render.shared.font;
 
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.resources.Resource;
@@ -9,6 +10,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
@@ -230,5 +232,12 @@ public class BitmapFont implements Resource {
     @Override
     public Type type() {
         return Type.FONT;
+    }
+
+    public BitmapFont() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        throw new UnimplementedException();
     }
 }

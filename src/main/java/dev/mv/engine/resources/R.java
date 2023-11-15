@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class R {
-    public static Res<Resource> resource = new Res<>();
+    public static Res<CustomResource> resource = new Res<>();
     public static Res<TextureRegion> texture = new Res<>();
     public static Res<Color> color = new Res<>();
     public static Res<BitmapFont> font = new Res<>();
@@ -45,13 +45,17 @@ public class R {
 
         public T get(String id) {
             try {
+                if (!map.containsKey(id)) {
+                    Exceptions.send("NO_SUCH_RESOURCE", id);
+                    return null;
+                }
                 T t = map.get(id);
                 if (t instanceof HeavyResource h) {
                     h.load();
                 }
                 return t;
             } catch (Exception e) {
-                Exceptions.send(new ResourceNotFoundException("There is no resource with resource-id of \"" + id + "\"!"));
+                Exceptions.send("NO_SUCH_RESOURCE", id);
                 return null;
             }
         }
@@ -60,12 +64,14 @@ public class R {
             return new Vec<T>(map.values()).asArray();
         }
 
-        public void register(String id, T res) {            
-            if (!id.equals(Resource.NO_R)) {
-                if (!map.containsKey(id)) {
-                    map.put(id, res);
-                } else {
-                    Exceptions.send("DUPLICATE_RESOURCE_ID", id);
+        public void register(String id, T res) {
+            if (id != null && !id.isBlank()) {
+                if (!id.equals(Resource.NO_R)) {
+                    if (!map.containsKey(id)) {
+                        map.put(id, res);
+                    } else {
+                        Exceptions.send("DUPLICATE_RESOURCE_ID", id);
+                    }
                 }
             }
         }

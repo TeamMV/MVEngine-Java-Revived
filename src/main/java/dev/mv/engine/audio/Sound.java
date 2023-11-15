@@ -1,8 +1,10 @@
 package dev.mv.engine.audio;
 
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.game.mod.loader.ModIntegration;
 import dev.mv.engine.resources.HeavyResource;
+import dev.mv.engine.resources.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -49,7 +51,7 @@ public class Sound implements HeavyResource {
     }
 
     @Override
-    public void unload() {
+    public void drop() {
         if (getState() != State.STOPPED) stop();
         alDeleteBuffers(buffer);
         loaded = false;
@@ -126,6 +128,13 @@ public class Sound implements HeavyResource {
     @Override
     public Type type() {
         return Type.SOUND;
+    }
+
+    public Sound() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        throw new UnimplementedException();
     }
 
     public enum State {

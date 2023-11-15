@@ -75,19 +75,28 @@ public abstract class Border extends StaticDrawable {//1--2
     }
 
     @Override
-    public Border parse(Parser parser) {
+    public void parse(Parser parser) {
         parser.requireCurrent("border");
         int strokeWidth = parser.intAttrib("strokeWidth", 3);
         Color color = Color.parse(parser.attrib("color", "255, 255, 255"));
         String type = parser.attrib("type", "new");
-        return switch (type) {
-            default -> parseCustom(parser.inner());
-            case "rect" -> new RectangleBorder(strokeWidth, color);
-            case "roundRect" -> new RoundRectangleBorder(strokeWidth, color, parser.intAttrib("radius", 10));
-            case "circle" -> new CircleBorder(strokeWidth, color);
-            case "ellipse" -> new EllispeBorder(strokeWidth, color);
-            case "arc" -> new ArcBorder(strokeWidth, color, parser.intAttrib("range", 90), parser.intAttrib("start", 0));
+         switch (type) {
+            default -> copyFrom(parseCustom(parser.inner()));
+            case "rect" -> copyFrom(new RectangleBorder(strokeWidth, color));
+            case "roundRect" -> copyFrom(new RoundRectangleBorder(strokeWidth, color, parser.intAttrib("radius", 10)));
+            case "circle" -> copyFrom(new CircleBorder(strokeWidth, color));
+            case "ellipse" -> copyFrom(new EllispeBorder(strokeWidth, color));
+            case "arc" -> copyFrom(new ArcBorder(strokeWidth, color, parser.intAttrib("range", 90), parser.intAttrib("start", 0)));
         };
+    }
+
+    private void copyFrom(Border other) {
+        if (other == null) return;
+        this.strokeWidth = other.getStrokeWidth();
+        this.color = other.getColor();
+        this.corners = other.corners;
+        this.cnvsW = other.getCnvsW();
+        this.cnvsH = other.getCnvsH();
     }
 
     private Border parseCustom(Parser parser) {

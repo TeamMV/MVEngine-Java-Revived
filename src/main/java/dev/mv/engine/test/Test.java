@@ -13,6 +13,7 @@ import dev.mv.engine.render.shared.graphics.CircularParticleSystem;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
 import dev.mv.engine.resources.R;
+import dev.mv.engine.resources.ResourceLoader;
 import dev.mv.engine.resources.types.SpriteSheet;
 import dev.mv.engine.resources.types.animation.Animation;
 import dev.mv.engine.resources.types.animation.FrameAnimation;
@@ -22,7 +23,9 @@ import dev.mv.engine.resources.types.drawable.Drawable;
 import dev.mv.engine.resources.types.drawable.StaticDrawable;
 import dev.mv.utils.Utils;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public class Test implements ApplicationLoop {
 
@@ -49,23 +52,11 @@ public class Test implements ApplicationLoop {
         camera = window.getCamera();
         camera.setSpeed(0.2f);
         cameraController = new DefaultCameraController(camera);
-        Music music = engine.getAudio().newMusic("/assets/mvengine/sound/11.wav");
-        R.music.register("bestSong", music);
 
-        try {
-            Texture sheetTex = RenderBuilder.newTexture(Test.class.getResourceAsStream("/anim-test.png"));
-            SpriteSheet sheet = new SpriteSheet(sheetTex, Test.class.getResourceAsStream("/anim-test.xml"));
-            animation = FrameAnimation.fromSprites(sheet.getCollection("index"));
-            animation.setDuration(3);
-            animation.computeDelay();
-            animation.setInfinite(false);
-
-            region = sheetTex.cutRegion(0, 0, 8, 8);
-
-            drawable = new StaticDrawable(0, 0).parse(new XMLParser(Test.class.getResourceAsStream("/drawable-test.xml")));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        ResourceLoader loader = engine.getResourceLoader();
+        loader.markColor("myColor", new ByteArrayInputStream("255,255,0,255".getBytes(StandardCharsets.UTF_8)));
+        loader.markTexture("inflatableGuy", Test.class.getResourceAsStream("/assets/mvengine/textures/inflatableGuy.png"));
+        loader.loadAll();
 
         //engine.getAudio().getDJ().loop("bestSong");
     }
@@ -77,10 +68,10 @@ public class Test implements ApplicationLoop {
 
     @Override
     public void draw(MVEngine engine, Window window) {
-        ctx.color(Color.BLUE);
-
-        drawable.draw(ctx, 10, 10, window.getWidth() - 20, window.getHeight() - 20, rot, window.getWidth() / 2, window.getHeight() / 2);
-
+        ctx.color(R.color.get("myColor"));
+        ctx.rectangle(100, 100, 100, 100);
+        ctx.color(R.color.get("transparent"));
+        ctx.image(200, 100, 100, 100, R.texture.get("inflatableGuy"));
         //rot += 0.05f;
     }
 

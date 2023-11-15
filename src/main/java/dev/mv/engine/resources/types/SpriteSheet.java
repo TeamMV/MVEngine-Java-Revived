@@ -1,12 +1,14 @@
 package dev.mv.engine.resources.types;
 
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.parsing.XMLParser;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.resources.Resource;
 
 import java.awt.*;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -78,5 +80,12 @@ public class SpriteSheet implements Resource {
     @Override
     public Type type() {
         return Type.SPRITE_SHEET;
+    }
+
+    public SpriteSheet() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        throw new UnimplementedException();
     }
 }

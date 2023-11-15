@@ -1,6 +1,7 @@
 package dev.mv.engine.resources;
 
-@FunctionalInterface
 public interface ProgressAction {
-    void update(int total, int current, int percentage);
+    void loading(String resId);
+    void failed(String resId);
+    void loaded(int total, int current, float percentage, String resId);
 }

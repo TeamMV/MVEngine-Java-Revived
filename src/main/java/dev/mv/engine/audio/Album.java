@@ -1,7 +1,10 @@
 package dev.mv.engine.audio;
 
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.resources.Resource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,5 +52,10 @@ public class Album implements Resource {
     @Override
     public Type type() {
         return null;
+    }
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        throw new UnimplementedException();
     }
 }

@@ -1,9 +1,14 @@
 package dev.mv.engine.resources.types.animation;
 
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.render.shared.texture.TextureRegion;
+import dev.mv.engine.resources.Resource;
 import dev.mv.engine.resources.types.SpriteCollection;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class FrameAnimation extends Animation {
     private SpriteCollection sprites;
@@ -40,5 +45,12 @@ public class FrameAnimation extends Animation {
     public void computeDelay() {
         int amt = sprites.getAmount();
         this.delay = getDuration() / (float) amt;
+    }
+
+    public FrameAnimation() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        throw new UnimplementedException();
     }
 }

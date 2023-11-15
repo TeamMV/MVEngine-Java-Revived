@@ -12,9 +12,12 @@ import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.opengl.OpenGLWindow;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.resources.ResourceLoader;
+import dev.mv.utils.collection.Vec;
+import dev.mv.utils.logger.Logger;
 import dev.mv.utils.misc.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,10 +38,19 @@ public class MVEngine implements AutoCloseable {
     private final List<Looper> loopers;
     private Physics physics;
     private Audio audio;
+    private final ResourceLoader resourceLoader;
 
     private MVEngine() {
         exceptionHandler = ExceptionHandler.Default.INSTANCE;
         loopers = new ArrayList<>();
+        resourceLoader = new ResourceLoader();
+        Logger.setLoggerOutput((s, logLevel) -> {
+            if (logLevel == Logger.LogLevel.WARN || logLevel == Logger.LogLevel.ERROR) {
+                System.err.print(s);
+            } else {
+                System.out.print(s);
+            }
+        });
     }
 
     public static MVEngine instance() {
@@ -88,10 +100,6 @@ public class MVEngine implements AutoCloseable {
         } else {
             instance.renderingApi = ApplicationConfig.RenderingAPI.OPENGL;
         }
-
-        ResourceLoader.markTexture("mqxf", "/assets/mvengine/textures/mqxf.png");
-        ResourceLoader.markTexture("mqxfMuscle", "/assets/mvengine/textures/mqxf-muscle.png");
-        ResourceLoader.markTexture("inflatableGuy", "/assets/mvengine/textures/inflatableGuy.png");
 
         return instance;
     }
@@ -175,5 +183,9 @@ public class MVEngine implements AutoCloseable {
 
     public Audio getAudio() {
         return audio;
+    }
+
+    public ResourceLoader getResourceLoader() {
+        return resourceLoader;
     }
 }

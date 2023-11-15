@@ -1,6 +1,10 @@
 package dev.mv.engine.render.shared.texture;
 
+import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.resources.Resource;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public class TextureRegion implements Resource {
     Texture tex;
@@ -58,5 +62,18 @@ public class TextureRegion implements Resource {
     @Override
     public Type type() {
         return Type.TEXTURE;
+    }
+
+    public TextureRegion() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        this.resId = resId;
+        tex = RenderBuilder.newTexture(inputStream);
+        width = tex.getWidth();
+        height = tex.getHeight();
+        id = tex.getId();
+        this.uv = createUV(0, 0, width, height);
+        register();
     }
 }

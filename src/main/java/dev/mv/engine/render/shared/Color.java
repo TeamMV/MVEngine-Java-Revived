@@ -4,6 +4,12 @@ import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.resources.Resource;
 import dev.mv.utils.ByteUtils;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
+
 public class Color implements Resource {
     private String resId;
     
@@ -15,6 +21,7 @@ public class Color implements Resource {
     public static Color YELLOW = new Color(255, 255, 0, 255, "yellow");
     public static Color MAGENTA = new Color(255, 0, 255, 255, "magenta");
     public static Color CYAN = new Color(0, 255, 255, 255, "cyan");
+    public static Color TRANSPARENT = new Color(0, 0, 0, 0, "transparent");
 
     byte r, g, b, a;
 
@@ -260,5 +267,14 @@ public class Color implements Resource {
     @Override
     public Type type() {
         return Type.COLOR;
+    }
+
+    public Color() {}
+
+    @Override
+    public void load(InputStream inputStream, String resId) throws IOException {
+        this.resId = resId;
+        copyFrom(parse(new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining())));
+        register();
     }
 }

@@ -60,12 +60,12 @@ public class StaticDrawable extends Drawable {
     }
 
     @Override
-    public Drawable parse(Parser parser) {
+    public void parse(Parser parser) {
         resId = parser.requireAttrib("resId");
         parser = parser.inner();
         if (!parser.current().equals("canvas")) {
             Exceptions.send(new InvalidGuiFileException("<drawable> MUST have <canvas> as the first tag!"));
-            return null;
+            return;
         }
         cnvsW = parser.intAttrib("width", 100);
         cnvsH = parser.intAttrib("height", 100);
@@ -81,7 +81,6 @@ public class StaticDrawable extends Drawable {
         } while (parser.advance());
 
         this.drawFunc = ctx -> actions.forEach(c -> c.accept(ctx));
-        return this;
     }
     
     private Consumer<DrawContext> parseTag(Parser parser) {
@@ -201,7 +200,8 @@ public class StaticDrawable extends Drawable {
             public Corner createCorner(int index) {
                 return null;
             } //gets overridden in the next line
-        }.parse(parser);
+        };
+        border.parse(parser);
 
         return ctx -> drawOptions.setBorder(border);
     }

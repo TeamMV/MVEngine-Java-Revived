@@ -4,6 +4,8 @@ import dev.mv.engine.TimingManager;
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.resources.Resource;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.Predicate;
 
 public abstract class Animation implements Resource {

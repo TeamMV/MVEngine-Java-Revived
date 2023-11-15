@@ -47,7 +47,7 @@ public final class Music extends Sound {
             audio.freeSource(alID);
             alID = -1;
             audio.unbind(id);
-            unload();
+            drop();
         }
     }
 
