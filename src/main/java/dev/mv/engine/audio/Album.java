@@ -19,7 +19,7 @@ public class Album implements Resource {
     public Album(String resId) {
         songs = new ArrayList<>();
         this.resId = resId;
-        register();
+        
     }
 
     public Album(List<String> songs) {
@@ -29,7 +29,7 @@ public class Album implements Resource {
     public Album(List<String> songs, String resId) {
         this.songs = songs;
         this.resId = resId;
-        register();
+        
     }
 
     public void addMusic(String music) {

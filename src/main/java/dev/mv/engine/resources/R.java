@@ -7,9 +7,9 @@ import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.render.shared.texture.TextureRegion;
-import dev.mv.engine.resources.types.SpriteCollection;
 import dev.mv.engine.resources.types.SpriteSheet;
 import dev.mv.engine.resources.types.animation.Animation;
+import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
 import dev.mv.utils.collection.Vec;
 
@@ -43,7 +43,7 @@ public class R {
         Res() {
         }
 
-        public T get(String id) {
+        public <U extends T> U get(String id) {
             try {
                 if (!map.containsKey(id)) {
                     Exceptions.send("NO_SUCH_RESOURCE", id);
@@ -53,7 +53,7 @@ public class R {
                 if (t instanceof HeavyResource h) {
                     h.load();
                 }
-                return t;
+                return (U) t;
             } catch (Exception e) {
                 Exceptions.send("NO_SUCH_RESOURCE", id);
                 return null;

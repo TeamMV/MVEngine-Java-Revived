@@ -33,7 +33,7 @@ public class BitmapFont implements Resource {
         bitmap = loadTexture(pngFileStream);
         chars = createCharacters(fntFileStream);
         this.resId = resId;
-        register();
+        
     }
 
     private Texture loadTexture(String pngFileStream) throws IOException {

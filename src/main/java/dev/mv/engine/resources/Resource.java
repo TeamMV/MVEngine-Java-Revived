@@ -9,6 +9,7 @@ import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.render.shared.texture.TextureRegion;
 import dev.mv.engine.resources.types.SpriteSheet;
 import dev.mv.engine.resources.types.animation.Animation;
+import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
 
 import java.io.IOException;
@@ -31,13 +32,13 @@ public interface Resource {
         ANIMATION(Animation.class),
         ;
 
-        private Class<? extends Resource> clazz;
+        private Class<?> clazz;
 
-        Type(Class<? extends Resource> clazz) {
+        Type(Class<?> clazz) {
             this.clazz = clazz;
         }
 
-        public Class<? extends Resource> clazz() {
+        public Class<?> clazz() {
             return clazz;
         }
     }
@@ -67,19 +68,36 @@ public interface Resource {
 
     void load(InputStream inputStream, String resId) throws IOException;
 
-    static Resource create(Class<?> clazz, InputStream inputStream) throws IOException {
-        return create(clazz, inputStream, NO_R);
+    static Resource create(Type type, InputStream inputStream) throws IOException {
+        return create(type, inputStream, NO_R);
     }
 
-    static Resource create(Class<?> clazz, InputStream inputStream, String resId) throws IOException {
+    static Resource create(Type type, InputStream inputStream, String resId) throws IOException {
         try {
-            Resource res = (Resource) clazz.getDeclaredConstructor().newInstance();
-            res.load(inputStream, resId);
-            return res;
+            if (type != Type.RESOURCE) {
+                Resource res = (Resource) type.clazz().getDeclaredConstructor().newInstance();
+                res.load(inputStream, resId);
+                res.register();
+                return res;
+            } else {
+                char c = (char) inputStream.read();
+                StringBuilder className = new StringBuilder();
+                while (c != '\n') {
+                    className.append(c);
+                    c = (char) inputStream.read();
+                }
+
+                Class<? extends CustomResource> clazz = (Class<? extends CustomResource>) Class.forName(className.toString());
+                CustomResource res = clazz.getDeclaredConstructor().newInstance();
+                res.load(inputStream, resId);
+                res.register();
+            }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
             Exceptions.send("CUSTOM_RESOURCE_CREATION", Resource.class.getName());
         } catch (NoSuchMethodException e) {
             Exceptions.send("NO_EMPTY_CONSTRUCTOR", Resource.class.getName());
+        } catch (ClassNotFoundException e) {
+            Exceptions.send(e);
         }
         return null;
     }

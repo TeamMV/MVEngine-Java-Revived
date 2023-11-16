@@ -646,17 +646,17 @@ public class DrawContext {
 
     public void mqxf(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxf"));
+        image(x, y, width, height, R.texture.<TextureRegion>get("mqxf"));
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxf"), rotation);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mqxf"), rotation);
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxf"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mqxf"), rotation, originX, originY);
     }
 
     /**
@@ -669,32 +669,32 @@ public class DrawContext {
      */
     public void inflatableGuy(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("inflatableGuy"));
+        image(x, y, width, height, R.texture.<TextureRegion>get("inflatableGuy"));
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("inflatableGuy"), rotation);
+        image(x, y, width, height, R.texture.<TextureRegion>get("inflatableGuy"), rotation);
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("inflatableGuy"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.<TextureRegion>get("inflatableGuy"), rotation, originX, originY);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxfMuscle"));
+        image(x, y, width, height, R.texture.<TextureRegion>get("mqxfMuscle"));
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxfMuscle"), rotation);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mqxfMuscle"), rotation);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxfMuscle"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mqxfMuscle"), rotation, originX, originY);
     }
 
 }

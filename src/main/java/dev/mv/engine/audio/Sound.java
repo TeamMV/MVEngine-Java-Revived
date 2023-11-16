@@ -32,7 +32,7 @@ public class Sound implements HeavyResource {
         this.loop = loop;
         this.path = path;
         this.resId = resId;
-        register();
+        
     }
 
     @Override

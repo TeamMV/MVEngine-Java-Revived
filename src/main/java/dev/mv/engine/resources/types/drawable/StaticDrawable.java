@@ -288,6 +288,8 @@ public class StaticDrawable extends Drawable {
                 c.color(currentColor);
                 c.triangle(tx1, ty1, tx2, ty2, tx3, ty3, transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
                 //drawOptions.border().draw(c, tx, ty, tw, th);
+
+                transformations.restoreOriginsToNull();
             };
         } else {
             return c -> {
@@ -307,6 +309,8 @@ public class StaticDrawable extends Drawable {
                 c.voidTriangle(tx1, ty1, tx2, ty2, tx3, ty3, drawOptions.strokeWidth().apply(getCnvsW(), getCnvsH()), transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
 
                 //drawOptions.border().draw(c, tx, ty, tw, th);
+
+                transformations.restoreOriginsToNull();
             };
         }
     }
@@ -334,6 +338,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx, ty, tw, th, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         } else {
             return c -> {
@@ -352,6 +358,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx, ty, tw, th, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         }
     }
@@ -377,6 +385,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         } else {
             return c -> {
@@ -394,6 +404,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         }
     }
@@ -421,6 +433,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - trax, ty - tray, trax, tray, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         } else {
             return c -> {
@@ -439,6 +453,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - trax, ty - tray, trax, tray, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         }
     }
@@ -468,6 +484,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         } else {
             return c -> {
@@ -487,6 +505,8 @@ public class StaticDrawable extends Drawable {
 
                 if (drawOptions.border() == null) return;
                 drawOptions.border().draw(c, tx - tr, ty - tr, tr, tr, (float) transformations.rotation().apply(getCnvsW(), getCnvsH()), transformations.originX().apply(getCnvsW(), getCnvsH()), transformations.originY().apply(getCnvsW(), getCnvsH()));
+
+                transformations.restoreOriginsToNull();
             };
         }
     }

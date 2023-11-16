@@ -62,6 +62,9 @@ public abstract class Drawable extends Into implements Resource {
         private BinaryOperator<Integer> rotation;
         private BinaryOperator<Integer> originX, originY;
 
+        private boolean wasOXNull = false;
+        private boolean wasOYNull = false;
+
         public Transformations() {
             transX = (w, h) -> 0;
             transY = (w, h) -> 0;
@@ -101,8 +104,13 @@ public abstract class Drawable extends Into implements Resource {
         }
 
         public void setOriginsIfNull(BinaryOperator<Integer> originX, BinaryOperator<Integer> originY) {
-            if (this.originX == null) this.originX = originX;
-            if (this.originY == null) this.originY = originY;
+            if (this.originX == null) { this.originX = originX; wasOXNull = true; }
+            if (this.originY == null) { this.originY = originY; wasOYNull = true; }
+        }
+
+        public void restoreOriginsToNull() {
+            if (wasOXNull) { originX = null; wasOXNull = false; }
+            if (wasOYNull) { originY = null; wasOYNull = false; }
         }
 
         public void setTransX(BinaryOperator<Integer> transX) {

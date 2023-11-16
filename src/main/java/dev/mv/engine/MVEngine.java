@@ -11,6 +11,7 @@ import dev.mv.engine.physics.Physics;
 import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.opengl.OpenGLWindow;
 import dev.mv.engine.render.shared.Window;
+import dev.mv.engine.resources.ProgressAction;
 import dev.mv.engine.resources.ResourceLoader;
 import dev.mv.utils.collection.Vec;
 import dev.mv.utils.logger.Logger;
@@ -187,5 +188,10 @@ public class MVEngine implements AutoCloseable {
 
     public ResourceLoader getResourceLoader() {
         return resourceLoader;
+    }
+
+    public void loadResources(ProgressAction action) {
+        Env.setResourceReady();
+        getResourceLoader().loadAll(action);
     }
 }

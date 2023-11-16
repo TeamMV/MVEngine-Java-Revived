@@ -26,7 +26,7 @@ public class TextureRegion implements Resource {
 
         this.uv = createUV(x, y, width, height);
         this.resId = resId;
-        register();
+        
     }
 
     private float[] createUV(int x, int y, int width, int height) {
@@ -74,6 +74,6 @@ public class TextureRegion implements Resource {
         height = tex.getHeight();
         id = tex.getId();
         this.uv = createUV(0, 0, width, height);
-        register();
+        
     }
 }

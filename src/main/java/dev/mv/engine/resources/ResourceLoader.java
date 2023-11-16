@@ -1,13 +1,9 @@
 package dev.mv.engine.resources;
 
-import dev.mv.engine.MVEngine;
-import dev.mv.engine.render.shared.Color;
-import dev.mv.engine.render.shared.font.BitmapFont;
-import dev.mv.engine.render.shared.texture.TextureRegion;
+import dev.mv.engine.Env;
+import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.utils.Utils;
 import dev.mv.utils.collection.Vec;
-import dev.mv.utils.generic.pair.Pair;
-import dev.mv.utils.logger.Logger;
 
 import java.io.InputStream;
 
@@ -55,25 +51,18 @@ public class ResourceLoader {
     }
 
     public void loadAll() {
-        loadAll(new ProgressAction() {
-            @Override
-            public void loading(String resId) {
-                Logger.info("loading resource \""+resId+"\"...");
-            }
-
-            @Override
-            public void failed(String resId) {
-                Logger.warn("failed to load resource \""+resId+"\"!");
-            }
-
-            @Override
-            public void loaded(int total, int current, float percentage, String resId) {
-                Logger.info(String.format("[%f%% - %d/%d] loaded resource \"%s\".", percentage, current, total, resId));
-            }
-        });
+        loadAll(ProgressAction.simple());
     }
 
     public void loadAll(ProgressAction progressAction) {
+        if (!Env.isResourceReady()) {
+            Exceptions.send(new IllegalStateException("ResourceLoader not ready yet!"));
+            return;
+        }
+
+        if (progressAction == null) {
+            progressAction = ProgressAction.quiet();
+        }
         for (int i = 0; i < refs.len(); i++) {
             ResourceReference ref = refs.get(i);
             if (ref.inputStream == null) {
@@ -83,7 +72,7 @@ public class ResourceLoader {
             progressAction.loading(ref.id);
             Resource.Type type = ref.type;
             try {
-                Resource.create(type.clazz(), ref.inputStream, ref.id);
+                Resource.create(type, ref.inputStream, ref.id);
             } catch (Exception e) {
                 progressAction.failed(ref.id);
                 continue;

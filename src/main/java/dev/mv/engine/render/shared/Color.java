@@ -275,6 +275,6 @@ public class Color implements Resource {
     public void load(InputStream inputStream, String resId) throws IOException {
         this.resId = resId;
         copyFrom(parse(new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining())));
-        register();
+        
     }
 }

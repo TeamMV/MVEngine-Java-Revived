@@ -9,6 +9,7 @@ import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.shared.*;
 import dev.mv.engine.render.shared.batch.BatchController;
 import dev.mv.engine.render.utils.RenderUtils;
+import dev.mv.engine.resources.ProgressAction;
 import dev.mv.utils.collection.Vec;
 import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
@@ -75,9 +76,11 @@ public class OpenGLWindow implements Window {
         batchController = new BatchController(this, 1000);
         batchController.start();
 
-        MVEngine.instance().handleInputs(this);
+        engine.handleInputs(this);
         if (applicationLoop != null) {
             try {
+                ProgressAction action = applicationLoop.preload(engine, this);
+                engine.loadResources(action);
                 applicationLoop.start(engine, this);
             } catch (Exception e) {
                 Exceptions.send(e);
@@ -188,7 +191,7 @@ public class OpenGLWindow implements Window {
                 if (applicationLoop != null) {
                     try {
                         applicationLoop.update(engine, this);
-                        MVEngine.instance().getLoopers().forEach(looper -> looper.loop(this));
+                        engine.getLoopers().forEach(looper -> looper.loop(this));
                     } catch (Exception e) {
                         Exceptions.send(e);
                     }

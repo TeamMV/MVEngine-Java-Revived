@@ -3,6 +3,7 @@ package dev.mv.engine.game;
 import dev.mv.engine.ApplicationLoop;
 import dev.mv.engine.MVEngine;
 import dev.mv.engine.render.shared.*;
+import dev.mv.engine.resources.ProgressAction;
 
 class WindowManager implements ApplicationLoop {
 
@@ -13,6 +14,11 @@ class WindowManager implements ApplicationLoop {
 
     WindowManager(Game game) {
         this.game = game;
+    }
+
+    @Override
+    public ProgressAction preload(MVEngine engine, Window window) throws Exception {
+        return ProgressAction.simple();
     }
 
     @Override
