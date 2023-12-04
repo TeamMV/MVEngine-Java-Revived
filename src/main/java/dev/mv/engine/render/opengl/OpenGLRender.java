@@ -54,6 +54,7 @@ public class OpenGLRender implements Render {
         }
         shader.uniform("uResX", (float) window.getWidth());
         shader.uniform("uResY", (float) window.getHeight());
+        shader.uniform("uProjection", window.getProjectionMatrix());
 
         shader.uniform("uSmoothing", RenderConstants.FONT_SMOOTHING);
 
