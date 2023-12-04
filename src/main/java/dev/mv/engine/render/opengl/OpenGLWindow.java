@@ -33,6 +33,7 @@ public class OpenGLWindow implements Window {
     BatchController batchController;
     private int currentFPS, currentUPS;
     private int width, height;
+    private float dpi;
     private double deltaF;
     private long window;
     private long currentFrame = 0, currentTime = 0;
@@ -127,6 +128,8 @@ public class OpenGLWindow implements Window {
                 (vidmode.width() - pWidth.get(0)) / 2,
                 (vidmode.height() - pHeight.get(0)) / 2
             );
+
+            dpi = vidmode.width() / 25.4f;
         }
 
         glfwMakeContextCurrent(window);
@@ -141,6 +144,9 @@ public class OpenGLWindow implements Window {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glEnable(GL_DEPTH_TEST);
+        glEnable(GL_STENCIL_TEST);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         glDepthMask(true);
         glDepthFunc(GL_LEQUAL);
         glDepthRange(0.0f, Z_FAR);
@@ -208,7 +214,7 @@ public class OpenGLWindow implements Window {
                 deltaU--;
             }
             if (deltaF >= 1) {
-                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+                glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
                 if (applicationLoop != null) {
                     try {
@@ -356,6 +362,11 @@ public class OpenGLWindow implements Window {
     public void setUPSCap(int cap) {
         info.maxUPS = cap;
         timeU = 1000000000f / info.maxUPS;
+    }
+
+    @Override
+    public float dpi() {
+        return dpi;
     }
 
     @Override

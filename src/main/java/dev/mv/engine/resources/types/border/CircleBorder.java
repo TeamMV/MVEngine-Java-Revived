@@ -8,8 +8,9 @@ import java.util.function.BinaryOperator;
 public class CircleBorder extends Border {
     private int radius;
 
-    public CircleBorder(int strokeWidth, Color color) {
+    public CircleBorder(int strokeWidth, Color color, int radius) {
         super(strokeWidth, color);
+        this.radius = radius;
         createCorners();
     }
 

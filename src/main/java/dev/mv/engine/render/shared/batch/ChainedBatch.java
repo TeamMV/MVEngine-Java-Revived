@@ -7,8 +7,8 @@ import static org.lwjgl.opengl.GL46.GL_TRIANGLE_STRIP;
 
 public class ChainedBatch extends RegularBatch {
 
-    public ChainedBatch(int maxSize, Window win, Shader shader) {
-        super(maxSize, win, shader);
+    public ChainedBatch(int maxSize, Window win, Shader shader, boolean stencil) {
+        super(maxSize, win, shader, stencil);
     }
 
     @Override

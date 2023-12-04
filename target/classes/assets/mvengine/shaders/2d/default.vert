@@ -8,18 +8,16 @@ layout (location = 2) in vec2 aRotationOrigin;
 layout (location = 3) in vec4 aColor;
 layout (location = 4) in vec2 aTexCoords;
 layout (location = 5) in float aTexID;
-layout (location = 6) in vec4 aCanvasCoords;
-layout (location = 7) in vec2 aCanvasData;
-layout (location = 8) in float aUseCam;
-layout (location = 9) in float aTransRot;
-layout (location = 10) in vec2 aTransTrans;
-layout (location = 11) in vec2 aTransOrigin;
-out vec4 fColor;
-out vec2 fTexCoords;
-out float fTexID;
-out vec4 fCanvasCoords;
-out vec2 fCanvasData;
-out vec2 fRes;
+layout (location = 6) in float aUseCam;
+layout (location = 7) in float aTransRot;
+layout (location = 8) in vec2 aTransTrans;
+layout (location = 9) in vec2 aTransOrigin;
+layout (location = 10) in float aIsFont;
+layout (location = 0) out vec4 fColor;
+layout (location = 1) out vec2 fTexCoords;
+layout (location = 2) out float fTexID;
+layout (location = 3) out vec2 fRes;
+layout (location = 4) out float fIsFont;
 
 uniform mat4 uProjection;
 uniform mat4 uView;
@@ -31,9 +29,8 @@ void main() {
     fColor = aColor;
     fTexCoords = aTexCoords;
     fTexID = aTexID;
-    fCanvasCoords = aCanvasCoords;
-    fCanvasData = aCanvasData;
     fRes = vec2(uResX, uResY);
+    fIsFont = aIsFont;
 
     vec2 pos = aVertPos.xy;
 

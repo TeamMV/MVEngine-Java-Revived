@@ -19,4 +19,8 @@ public class Vertex {
         this.data[length++] = data;
         return this;
     }
+
+    public int length() {
+        return length;
+    }
 }

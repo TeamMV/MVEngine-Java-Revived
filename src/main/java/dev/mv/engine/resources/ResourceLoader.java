@@ -74,6 +74,7 @@ public class ResourceLoader {
             try {
                 Resource.create(type, ref.inputStream, ref.id);
             } catch (Exception e) {
+                Exceptions.send(e);
                 progressAction.failed(ref.id);
                 continue;
             }

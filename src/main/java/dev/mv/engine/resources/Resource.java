@@ -11,6 +11,7 @@ import dev.mv.engine.resources.types.SpriteSheet;
 import dev.mv.engine.resources.types.animation.Animation;
 import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
+import dev.mv.engine.resources.types.drawable.StaticDrawable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +28,7 @@ public interface Resource {
         SOUND(Sound.class),
         MUSIC(Music.class),
         ALBUM(Album.class),
-        DRAWABLE(Drawable.class),
+        DRAWABLE(StaticDrawable.class),
         SPRITE_SHEET(SpriteSheet.class),
         ANIMATION(Animation.class),
         ;

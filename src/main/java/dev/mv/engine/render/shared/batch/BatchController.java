@@ -34,16 +34,16 @@ public class BatchController {
     }
 
     public void start() {
-        batches.push(new RegularBatch(maxBatchSize, win, defaultShader));
+        batches.push(new RegularBatch(maxBatchSize, win, defaultShader, false));
     }
 
-    protected void nextBatch(boolean strip) {
+    protected void nextBatch(boolean strip, boolean clip) {
         currentBatch++;
         try {
             if (batches.get(currentBatch).isStrip() != strip) {
                 //TODO: check performance, might be slow if drastic changes between batch types...
                 //Might only be an issue when changing what is rendered though, not every frame
-                batches.insert(currentBatch, gen(strip));
+                batches.insert(currentBatch, gen(strip, clip));
                 //Backup solution, doesn't remake batches but might cause issues if it has to skip a lot of batches and then waste RAM
                 //nextBatch(strip);
                 //int i = findBatch(strip);
@@ -52,7 +52,7 @@ public class BatchController {
                 //batches.insert(currentBatch + i, tmp);
             }
         } catch (IndexOutOfBoundsException e) {
-            batches.push(gen(strip));
+            batches.push(gen(strip, clip));
         }
     }
 
@@ -71,41 +71,44 @@ public class BatchController {
     //    }
     //}
 
-    private Batch gen(boolean strip) {
-        return strip ? new ChainedBatch(maxBatchSize, win, defaultShader) : new RegularBatch(maxBatchSize, win, defaultShader);
+    private Batch gen(boolean strip, boolean clip) {
+        return strip ? new ChainedBatch(maxBatchSize, win, defaultShader, clip) : new RegularBatch(maxBatchSize, win, defaultShader, clip);
     }
 
-    public void addVertices(VertexGroup vertexData, boolean useCamera, float tR, int tTx, int tTy, int tOx, int tOy) {
-        addVertices(vertexData, useCamera, false, tR, tTx, tTy, tOx, tOy);
+    public void addVertices(VertexGroup vertexData, boolean useCamera, float tR, int tTx, int tTy, int tOx, int tOy, boolean clip) {
+        addVertices(vertexData, useCamera, false, tR, tTx, tTy, tOx, tOy, clip, false);
     }
 
-    public void addVertices(VertexGroup vertexData, boolean useCamera, boolean strip, float tR, int tTx, int tTy, int tOx, int tOy) {
+    public void addVertices(VertexGroup vertexData, boolean useCamera, boolean strip, float tR, int tTx, int tTy, int tOx, int tOy, boolean clip, boolean isFont) {
         if (batches.get(currentBatch).isStrip() != strip) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
+        }
+        if (batches.get(currentBatch).isStencil() != clip) {
+            nextBatch(strip, clip);
         }
         if (batches.get(currentBatch).isFull(vertexData.length() * Batch.VERTEX_SIZE_FLOATS)) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
         }
 
-        batches.get(currentBatch).addVertices(vertexData, useCamera, tR, tTx, tTy, tOx, tOy);
+        batches.get(currentBatch).addVertices(vertexData, useCamera, tR, tTx, tTy, tOx, tOy, isFont);
     }
 
     public int addTexture(Texture tex) {
-        return addTexture(tex, false);
+        return addTexture(tex, false, false);
     }
 
-    public int addTexture(Texture tex, boolean strip) {
+    public int addTexture(Texture tex, boolean strip, boolean clip) {
         if (batches.get(currentBatch).isStrip() != strip) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
         }
         if (batches.get(currentBatch).isFullOfTextures() || batches.get(currentBatch).isFull(Batch.VERTEX_SIZE_FLOATS * 4)) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
         }
 
         int texID = batches.get(currentBatch).addTexture(tex);
 
         if (texID == -1) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
             texID = batches.get(currentBatch).addTexture(tex);
         }
 
@@ -113,21 +116,21 @@ public class BatchController {
     }
 
     public int addTexture(Texture tex, int vertices) {
-        return addTexture(tex, vertices, false);
+        return addTexture(tex, vertices, false, false);
     }
 
-    public int addTexture(Texture tex, int vertices, boolean strip) {
+    public int addTexture(Texture tex, int vertices, boolean strip, boolean clip) {
         if (batches.get(currentBatch).isStrip() != strip) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
         }
         if (batches.get(currentBatch).isFullOfTextures() || batches.get(currentBatch).isFull(vertices)) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
         }
 
         int texID = batches.get(currentBatch).addTexture(tex);
 
         if (texID == -1) {
-            nextBatch(strip);
+            nextBatch(strip, clip);
             texID = batches.get(currentBatch).addTexture(tex);
         }
 

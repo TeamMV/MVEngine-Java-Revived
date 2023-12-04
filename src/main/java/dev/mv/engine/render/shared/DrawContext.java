@@ -22,10 +22,8 @@ public class DrawContext {
     private VertexGroup verts = new VertexGroup();
     private Vertex v1 = new Vertex(), v2 = new Vertex(), v3 = new Vertex(), v4 = new Vertex();
     private Vector4f canvas;
-    private int edgeRadius;
-    private int edgeStyle;
-    private Window window;
-    private boolean isStripped;
+    private final Window window;
+    private boolean isStripped, isClip = false;
     
     private float tRotation;
     private int tTransX, tTransY, tOriginX, tOriginY;
@@ -74,8 +72,6 @@ public class DrawContext {
         canvas.y = y;
         canvas.z = width;
         canvas.w = height;
-        edgeStyle = 0;
-        edgeRadius = 0;
     }
 
     public void canvas() {
@@ -83,15 +79,11 @@ public class DrawContext {
         canvas.y = 0;
         canvas.z = window.getWidth();
         canvas.w = window.getHeight();
-        edgeStyle = 0;
-        edgeRadius = 0;
     }
 
-    public void unstyleFullCanvas() {
-        if (canvas.x == 0 && canvas.y == 0 && canvas.z == window.getWidth() && canvas.w == window.getHeight()) {
-            edgeStyle = 0;
-            edgeRadius = 0;
-        }
+    public void background(int r, int g, int b) {
+        color(r, g, b, 255);
+        rectangle(0, 0, window.getWidth(), window.getHeight());
     }
 
     public void beginStrip() {
@@ -102,6 +94,16 @@ public class DrawContext {
     public void endStrip() {
         if (!isStripped) Exceptions.send(new IllegalStateException("Begin a stripped drawing before ending it!"));
         isStripped = false;
+    }
+    
+    public void beginClip() {
+        if (isClip) Exceptions.send(new IllegalStateException("End a clipped drawing before starting a new one!"));
+        isClip = true;
+    }
+    
+    public void endClip() {
+        if (!isClip) Exceptions.send(new IllegalStateException("Begin a clipped drawing before ending it!"));
+        isClip = false;
     }
 
     public void color(Color color) {
@@ -143,10 +145,10 @@ public class DrawContext {
     public void triangle(int x1, int y1, int x2, int y2, int x3, int y3, float rotation, int originX, int originY) {
         float radRotation = (float) Math.toRadians(rotation);
         window.getBatchController().addVertices(verts.set(
-            v1.put(x1, y1, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x2, y2, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x3, y3, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x1, y1, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(x2, y2, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(x3, y3, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void voidTriangle(int x1, int y1, int x2, int y2, int x3, int y3, int thickness) {
@@ -174,25 +176,25 @@ public class DrawContext {
         int cy3 =  y3 - (int) (thickness * Math.sin(angle3));
 
         window.getBatchController().addVertices(verts.set(
-                v1.put(x1, y1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put(x2, y2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put(cx2, cy2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v4.put(cx1, cy1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put(x1, y1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v2.put(x2, y2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v3.put(cx2, cy2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v4.put(cx1, cy1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
 
         window.getBatchController().addVertices(verts.set(
-                v1.put(cx2, cy2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put(x2, y2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put(x3, y3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v4.put(cx3, cy3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put(cx2, cy2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v2.put(x2, y2, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v3.put(x3, y3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v4.put(cx3, cy3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
 
         window.getBatchController().addVertices(verts.set(
-                v1.put(x1, y1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put(cx1, cy1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put(cx3, cy3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v4.put(x3, y3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put(x1, y1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v2.put(cx1, cy1, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v3.put(cx3, cy3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v4.put(x3, y3, 0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
 
@@ -213,11 +215,11 @@ public class DrawContext {
         float radRotation = (float) (rotation * (Math.PI / 180));
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(ax, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(ax, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(ax2, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(ax2, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(ax, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(ax, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(ax2, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v4.put(ax2, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void voidRectangle(int x, int y, int width, int height, int thickness) {
@@ -305,32 +307,32 @@ public class DrawContext {
         rectangle(x + width - thickness, y + radius, thickness, height - 2 * radius, rotation, originX, originY);
         float radRotation = (float) Math.toRadians(rotation);
         window.getBatchController().addVertices(verts.set(
-            v1.put(x, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x + radius, y + height, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x + radius, y + height - thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x + thickness, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(x + radius, y + height, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(x + radius, y + height - thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v4.put(x + thickness, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(x + width - radius, y + height - thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x + width - radius, y + height, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x + width, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x + width - thickness, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x + width - radius, y + height - thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(x + width - radius, y + height, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(x + width, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v4.put(x + width - thickness, y + height - radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(x + width - radius, y, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x + width - radius, y + thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x + width - thickness, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x + width, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x + width - radius, y, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(x + width - radius, y + thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(x + width - thickness, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v4.put(x + width, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(x, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x + thickness, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x + radius, y + thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x + radius, y, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(x + thickness, y + radius, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(x + radius, y + thickness, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v4.put(x + radius, y, 0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void circle(int x, int y, int radius, float precision) {
@@ -359,10 +361,10 @@ public class DrawContext {
         float radRotation = (float) Math.toRadians(rotation);
         for (double i = 0.0; i < tau; i += step) {
             window.getBatchController().addVertices(verts.set(
-                v1.put((float) (x + (radiusX * Math.cos(i))), (float) (y + (radiusY * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put((float) (x + (radiusX * Math.cos(i + step))), (float) (y + (radiusY * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put(x, y, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put((float) (x + (radiusX * Math.cos(i))), (float) (y + (radiusY * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v2.put((float) (x + (radiusX * Math.cos(i + step))), (float) (y + (radiusY * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v3.put(x, y, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
         }
     }
 
@@ -382,11 +384,11 @@ public class DrawContext {
         float radRotation = (float) Math.toRadians(rotation);
         for (double i = 0.0; i < tau; i += step) {
             window.getBatchController().addVertices(verts.set(
-                    v1.put((float) (x + (rRadiusX * Math.cos(i))), (float) (y + (rRadiusY * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                    v2.put((float) (x + ((rRadiusX + thickness) * Math.cos(i))), (float) (y + ((rRadiusY + thickness) * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                    v3.put((float) (x + ((rRadiusX + thickness) * Math.cos(i + step))), (float) (y + ((rRadiusY + thickness) * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                    v4.put((float) (x + (rRadiusX * Math.cos(i + step))), (float) (y + (rRadiusY * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                    v1.put((float) (x + (rRadiusX * Math.cos(i))), (float) (y + (rRadiusY * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v2.put((float) (x + ((rRadiusX + thickness) * Math.cos(i))), (float) (y + ((rRadiusY + thickness) * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v3.put((float) (x + ((rRadiusX + thickness) * Math.cos(i + step))), (float) (y + ((rRadiusY + thickness) * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v4.put((float) (x + (rRadiusX * Math.cos(i + step))), (float) (y + (rRadiusY * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
         }
     }
 
@@ -417,10 +419,10 @@ public class DrawContext {
         float radRotation = (float) Math.toRadians(rotation);
         for (double i = Math.toRadians(start); i < tau - rRange + Math.toRadians(start); i += step) {
             window.getBatchController().addVertices(verts.set(
-                v1.put((float) (x + (radius * Math.cos(i))), (float) (y + (radius * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put((float) (x + (radius * Math.cos(i + step))), (float) (y + (radius * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put(x, y, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put((float) (x + (radius * Math.cos(i))), (float) (y + (radius * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v2.put((float) (x + (radius * Math.cos(i + step))), (float) (y + (radius * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v3.put(x, y, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
         }
     }
 
@@ -440,11 +442,58 @@ public class DrawContext {
         float radRotation = (float) Math.toRadians(rotation);
         for (double i = Math.toRadians(start); i < tau - rRange + Math.toRadians(start); i += step) {
             window.getBatchController().addVertices(verts.set(
-                v1.put((float) (x + (rRadius * Math.cos(i))), (float) (y + (rRadius * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put((float) (x + ((rRadius + thickness) * Math.cos(i))), (float) (y + ((rRadius + thickness) * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put((float) (x + ((rRadius + thickness) * Math.cos(i + step))), (float) (y + ((rRadius + thickness) * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v4.put((float) (x + (rRadius * Math.cos(i + step))), (float) (y + (rRadius * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put((float) (x + (rRadius * Math.cos(i))), (float) (y + (rRadius * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v2.put((float) (x + ((rRadius + thickness) * Math.cos(i))), (float) (y + ((rRadius + thickness) * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v3.put((float) (x + ((rRadius + thickness) * Math.cos(i + step))), (float) (y + ((rRadius + thickness) * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                v4.put((float) (x + (rRadius * Math.cos(i + step))), (float) (y + (rRadius * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
+        }
+    }
+
+    public void ellipseArc(int x, int y, int radiusX, int radiusY, int range, int start, float precision) {
+        ellipseArc(x, y, radiusX, radiusY, range, start, precision, 0f);
+    }
+
+    public void ellipseArc(int x, int y, int radiusX, int radiusY, int range, int start, float precision, float rotation) {
+        ellipseArc(x, y, radiusX, radiusY, range, start, precision, rotation, x, y);
+    }
+
+    public void ellipseArc(int x, int y, int radiusX, int radiusY, int range, int start, float precision, float rotation, int originX, int originY) {
+        double tau = Math.PI * 2.0;
+        double step = tau / precision;
+        float radRotation = (float) Math.toRadians(rotation);
+        double rRange = Math.PI * 2.0 - Math.toRadians(range);
+        for (double i = Math.toRadians(start); i < tau - rRange + Math.toRadians(start); i += step) {
+            window.getBatchController().addVertices(verts.set(
+                    v1.put((float) (x + (radiusX * Math.cos(i))), (float) (y + (radiusY * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v2.put((float) (x + (radiusX * Math.cos(i + step))), (float) (y + (radiusY * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v3.put(x, y, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
+        }
+    }
+
+    public void voidEllipseArc(int x, int y, int radiusX, int radiusY, int thickness, int range, int start, float precision) {
+        voidEllipseArc(x, y, radiusX, radiusY, thickness, range, start, precision, 0f);
+    }
+
+    public void voidEllipseArc(int x, int y, int radiusX, int radiusY, int thickness, int range, int start, float precision, float rotation) {
+        voidEllipseArc(x, y, radiusX, radiusY, thickness, range, start, precision, rotation, x, y);
+    }
+
+    public void voidEllipseArc(int x, int y, int radiusX, int radiusY, int thickness, int range, int start, float precision, float rotation, int originX, int originY) {
+        int rRadiusX = radiusX - Math.ceilDiv(thickness, 2);
+        int rRadiusY = radiusY - Math.ceilDiv(thickness, 2);
+        double tau = Math.PI * 2.0;
+        double step = tau / precision;
+        float radRotation = (float) Math.toRadians(rotation);
+        double rRange = Math.PI * 2.0 - Math.toRadians(range);
+        for (double i = Math.toRadians(start); i < tau - rRange + Math.toRadians(start); i += step) {
+            window.getBatchController().addVertices(verts.set(
+                    v1.put((float) (x + (rRadiusX * Math.cos(i))), (float) (y + (rRadiusY * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v2.put((float) (x + ((rRadiusX + thickness) * Math.cos(i))), (float) (y + ((rRadiusY + thickness) * Math.sin(i))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v3.put((float) (x + ((rRadiusX + thickness) * Math.cos(i + step))), (float) (y + ((rRadiusY + thickness) * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+                    v4.put((float) (x + (rRadiusX * Math.cos(i + step))), (float) (y + (rRadiusY * Math.sin(i + step))), 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
         }
     }
 
@@ -463,11 +512,11 @@ public class DrawContext {
         float radRotation = (float) Math.toRadians(rotation);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(x1 - thetaCos, y1 + thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x1 + thetaCos, y1 - thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x2 + thetaCos, y2 - thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x2 - thetaCos, y2 + thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 0.0f, 0.0f, 0.0f, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x1 - thetaCos, y1 + thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v2.put(x1 + thetaCos, y1 - thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v3.put(x2 + thetaCos, y2 - thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 0.0f, 0.0f, 0.0f),
+            v4.put(x2 - thetaCos, y2 + thetaSin, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 0.0f, 0.0f, 0.0f)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void image(int x, int y, int width, int height, Texture texture) {
@@ -494,14 +543,14 @@ public class DrawContext {
 
         float radRotation = (float) (rotation * (Math.PI / 180));
 
-        int texID = window.getBatchController().addTexture(texture, isStripped);
+        int texID = window.getBatchController().addTexture(texture, isStripped, isClip);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(ax, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(ax, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 1.0f, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(ax2, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 1.0f, 1.0f, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(ax2, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 1.0f, 0.0f, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(ax, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, (float) texID),
+            v2.put(ax, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 1.0f, (float) texID),
+            v3.put(ax2, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 1.0f, 1.0f, (float) texID),
+            v4.put(ax2, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 1.0f, 0.0f, (float) texID)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void image(int x, int y, int width, int height, TextureRegion texture, float rotation, int originX, int originY) {
@@ -517,14 +566,14 @@ public class DrawContext {
 
         float radRotation = (float) (rotation * (Math.PI / 180));
 
-        int texID = window.getBatchController().addTexture(texture.getParentTexture(), isStripped);
+        int texID = window.getBatchController().addTexture(texture.getParentTexture(), isStripped, isClip);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(ax, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(ax, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), ux0, uy1, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(ax2, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), ux1, uy1, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(ax2, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), ux1, uy0, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(ax, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, (float) texID),
+            v2.put(ax, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), ux0, uy1, (float) texID),
+            v3.put(ax2, ay, 0.0f, radRotation, (float) originX, (float) originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), ux1, uy1, (float) texID),
+            v4.put(ax2, ay2, 0.0f, radRotation, (float) originX, (float) originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), ux1, uy0, (float) texID)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void imageFromTo(int x1, int y1, int x2, int y2, int thickness, Texture texture) {
@@ -532,14 +581,14 @@ public class DrawContext {
         float thetaSin = (float) (Math.sin(theta) * thickness);
         float thetaCos = (float) (Math.cos(theta) * thickness);
 
-        int texID = window.getBatchController().addTexture(texture, isStripped);
+        int texID = window.getBatchController().addTexture(texture, isStripped, isClip);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(x1 - thetaCos, y1 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x1 + thetaCos, y1 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 1.0f, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x2 + thetaCos, y2 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 1.0f, 1.0f, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x2 - thetaCos, y2 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 1.0f, 0.0f, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x1 - thetaCos, y1 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), 0.0f, 0.0f, texID),
+            v2.put(x1 + thetaCos, y1 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), 0.0f, 1.0f, texID),
+            v3.put(x2 + thetaCos, y2 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), 1.0f, 1.0f, texID),
+            v4.put(x2 - thetaCos, y2 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), 1.0f, 0.0f, texID)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void imageFromTo(int x1, int y1, int x2, int y2, int thickness, TextureRegion texture) {
@@ -552,14 +601,14 @@ public class DrawContext {
         float uy1 = texture.getUVCoordinates()[2];
         float uy0 = texture.getUVCoordinates()[3];
 
-        int texID = window.getBatchController().addTexture(texture.getParentTexture(), isStripped);
+        int texID = window.getBatchController().addTexture(texture.getParentTexture(), isStripped, isClip);
 
         window.getBatchController().addVertices(verts.set(
-            v1.put(x1 - thetaCos, y1 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v2.put(x1 + thetaCos, y1 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), ux0, uy1, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v3.put(x2 + thetaCos, y2 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), ux1, uy1, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-            v4.put(x2 - thetaCos, y2 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), ux1, uy0, texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+            v1.put(x1 - thetaCos, y1 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, texID),
+            v2.put(x1 + thetaCos, y1 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), ux0, uy1, texID),
+            v3.put(x2 + thetaCos, y2 - thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), ux1, uy1, texID),
+            v4.put(x2 - thetaCos, y2 + thetaSin, 0.0f, 0.0f, 0.0f, 0.0f, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), ux1, uy0, texID)
+        ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, false);
     }
 
     public void animation(int x, int y, int width, int height, Animation animation) {
@@ -629,14 +678,14 @@ public class DrawContext {
             float uy1 = uvs[0].y;
             float uy0 = uvs[1].y;
 
-            int texID = window.getBatchController().addTexture(font.getBitmap(), isStripped);
+            int texID = window.getBatchController().addTexture(font.getBitmap(), isStripped, isClip);
 
             window.getBatchController().addVertices(verts.set(
-                v1.put(ax, ay2, 0.0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v2.put(ax, ay, 0.0f, radRotation, originX, originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), ux0, uy1, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v3.put(ax2, ay, 0.0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), ux1, uy1, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius),
-                v4.put(ax2, ay2, 0.0f, radRotation, originX, originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), ux1, uy0, (float) texID, canvas.x, canvas.y, canvas.z, canvas.w, edgeStyle, edgeRadius)
-            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY);
+                v1.put(ax, ay2, 0.0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, (float) texID),
+                v2.put(ax, ay, 0.0f, radRotation, originX, originY, gradient.topLeft.getRed(), gradient.topLeft.getGreen(), gradient.topLeft.getBlue(), gradient.topLeft.getAlpha(), ux0, uy1, (float) texID),
+                v3.put(ax2, ay, 0.0f, radRotation, originX, originY, gradient.topRight.getRed(), gradient.topRight.getGreen(), gradient.topRight.getBlue(), gradient.topRight.getAlpha(), ux1, uy1, (float) texID),
+                v4.put(ax2, ay2, 0.0f, radRotation, originX, originY, gradient.bottomRight.getRed(), gradient.bottomRight.getGreen(), gradient.bottomRight.getBlue(), gradient.bottomRight.getAlpha(), ux1, uy0, (float) texID)
+            ), useCamera, isStripped, tRotation, tTransX, tTransY, tOriginX, tOriginY, isClip, true);
         }
     }
 
@@ -669,32 +718,32 @@ public class DrawContext {
      */
     public void inflatableGuy(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("inflatableGuy"));
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.inflatableGuy"));
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("inflatableGuy"), rotation);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.inflatableGuy"), rotation);
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("inflatableGuy"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.inflatableGuy"), rotation, originX, originY);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mqxfMuscle"));
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxfMuscle"));
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mqxfMuscle"), rotation);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxfMuscle"), rotation);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mqxfMuscle"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxfMuscle"), rotation, originX, originY);
     }
 
 }

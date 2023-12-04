@@ -9,10 +9,6 @@ public class RectangleBorder extends Border{
         createCorners();
     }
 
-    public RectangleBorder() {
-        createCorners();
-    }
-
     @Override
     public Corner createCorner(int index) {
         return new Corner(0, 0, (ctx, x, y, strokeWidth, r, ox, oy) -> {});

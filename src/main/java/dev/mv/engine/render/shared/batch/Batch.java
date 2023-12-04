@@ -16,14 +16,13 @@ public abstract class Batch {
     public static final int COLOR_SIZE = 4;
     public static final int UV_SIZE = 2;
     public static final int TEX_ID_SIZE = 1;
-    public static final int CANVAS_COORDS_SIZE = 4;
-    public static final int CANVAS_DATA_SIZE = 2;
     public static final int USE_CAMERA_SIZE = 1;
     public static final int TRANSFORM_ROTATION_SIZE = 1;
     public static final int TRANSFORM_TRANSLATE_SIZE = 2;
     public static final int TRANSFORM_ORIGIN_SIZE = 2;
+    public static final int IS_FONT_SIZE = 1;
 
-    public static final int VERTEX_SIZE_FLOATS = POSITION_SIZE + ROTATION_SIZE + ROTATION_ORIGIN_SIZE + COLOR_SIZE + UV_SIZE + TEX_ID_SIZE + CANVAS_COORDS_SIZE + CANVAS_DATA_SIZE + USE_CAMERA_SIZE + TRANSFORM_ROTATION_SIZE + TRANSFORM_TRANSLATE_SIZE + TRANSFORM_ORIGIN_SIZE;
+    public static final int VERTEX_SIZE_FLOATS = POSITION_SIZE + ROTATION_SIZE + ROTATION_ORIGIN_SIZE + COLOR_SIZE + UV_SIZE + TEX_ID_SIZE + USE_CAMERA_SIZE + TRANSFORM_ROTATION_SIZE + TRANSFORM_TRANSLATE_SIZE + TRANSFORM_ORIGIN_SIZE + IS_FONT_SIZE;
     public static final int VERTEX_SIZE_BYTES = VERTEX_SIZE_FLOATS * Float.BYTES;
 
     public static final int POSITION_OFFSET = 0;
@@ -38,11 +37,7 @@ public abstract class Batch {
     public static final int UV_OFFSET_BYTES = UV_OFFSET * Float.BYTES;
     public static final int TEX_ID_OFFSET = UV_OFFSET + UV_SIZE;
     public static final int TEX_ID_OFFSET_BYTES = TEX_ID_OFFSET * Float.BYTES;
-    public static final int CANVAS_COORDS_OFFSET = TEX_ID_OFFSET + TEX_ID_SIZE;
-    public static final int CANVAS_COORDS_OFFSET_BYTES = CANVAS_COORDS_OFFSET * Float.BYTES;
-    public static final int CANVAS_DATA_OFFSET = CANVAS_COORDS_OFFSET + CANVAS_COORDS_SIZE;
-    public static final int CANVAS_DATA_OFFSET_BYTES = CANVAS_DATA_OFFSET * Float.BYTES;
-    public static final int USE_CAMERA_OFFSET = CANVAS_DATA_OFFSET + CANVAS_DATA_SIZE;
+    public static final int USE_CAMERA_OFFSET = TEX_ID_OFFSET + TEX_ID_SIZE;
     public static final int USE_CAMERA_OFFSET_BYTES = USE_CAMERA_OFFSET * Float.BYTES;
     public static final int TRANSFORM_ROTATION_OFFSET = USE_CAMERA_OFFSET + USE_CAMERA_SIZE;
     public static final int TRANSFORM_ROTATION_OFFSET_BYTES = TRANSFORM_ROTATION_OFFSET * Float.BYTES;
@@ -50,7 +45,9 @@ public abstract class Batch {
     public static final int TRANSFORM_TRANSLATE_OFFSET_BYTES = TRANSFORM_TRANSLATE_OFFSET * Float.BYTES;
     public static final int TRANSFORM_ORIGIN_OFFSET = TRANSFORM_TRANSLATE_OFFSET + TRANSFORM_TRANSLATE_SIZE;
     public static final int TRANSFORM_ORIGIN_OFFSET_BYTES = TRANSFORM_ORIGIN_OFFSET * Float.BYTES;
-    // p p p r ro ro c c c c uv uv ti uc cc cc cc cc
+    public static final int IS_FONT_OFFSET = TRANSFORM_ORIGIN_OFFSET + TRANSFORM_ORIGIN_SIZE;
+    public static final int IS_FONT_OFFSET_BYTES = IS_FONT_OFFSET * Float.BYTES;
+    // p p p r ro ro c c c c uv uv ti uc tr tt tt to to
     protected int maxSize;
     protected float[] data;
     protected int[] indices;
@@ -62,6 +59,7 @@ public abstract class Batch {
     protected IntBuffer ibo;
     protected int ibo_id;
     protected int[] tex_ids;
+    protected boolean isStencil = false;
     /**
      * The var vertCount is the offset pointer for the incoming data,
      * therefor no data gets overridden.
@@ -74,11 +72,16 @@ public abstract class Batch {
     protected boolean isFull = false;
     protected boolean isFullTex = false;
 
-    public Batch(int maxSize, Window win, Shader shader) {
+    public Batch(int maxSize, Window win, Shader shader, boolean isStencil) {
         this.maxSize = maxSize;
         this.win = win;
         this.shader = shader;
+        this.isStencil = isStencil;
         initBatch();
+    }
+
+    public Batch(int maxSize, Window win, Shader shader) {
+        this(maxSize, win, shader, false);
     }
 
     private void initBatch() {
@@ -145,7 +148,7 @@ public abstract class Batch {
         vertCount++;
     }
 
-    public void addVertices(VertexGroup vertData, boolean useCamera, float tR, int tTx, int tTy, int tOx, int tOy) {
+    public void addVertices(VertexGroup vertData, boolean useCamera, float tR, int tTx, int tTy, int tOx, int tOy, boolean isFont) {
         if (isFull(vertData.length())) return;
 
         genIndices(vertData.length());
@@ -158,6 +161,7 @@ public abstract class Batch {
                     .add(tTy)
                     .add(tOx)
                     .add(tOy)
+                    .add(isFont ? 1 : 0)
             );
             if (vertCount > maxSize) {
                 isFull = true;
@@ -172,6 +176,7 @@ public abstract class Batch {
                     .add(tTy)
                     .add(tOx)
                     .add(tOy)
+                    .add(isFont ? 1 : 0)
             );
             if (vertCount > maxSize) {
                 isFull = true;
@@ -210,7 +215,7 @@ public abstract class Batch {
     }
 
     public void render() {
-        win.getRender().retrieveVertexData(textures, tex_ids, indices, data, vbo_id, ibo_id, shader, win.getAdapter().adaptRenderMode(getRenderMode()));
+        win.getRender().retrieveVertexData(textures, tex_ids, indices, data, vbo_id, ibo_id, shader, win.getAdapter().adaptRenderMode(getRenderMode()), isStencil);
 
         forceClearBatch();
     }
@@ -223,10 +228,13 @@ public abstract class Batch {
         this.shader = shader;
     }
 
+    public boolean isStencil() {
+        return isStencil;
+    }
+
     public abstract int getRenderMode();
 
     protected abstract void genIndices(int vertAmount);
 
     public abstract boolean isStrip();
-
 }

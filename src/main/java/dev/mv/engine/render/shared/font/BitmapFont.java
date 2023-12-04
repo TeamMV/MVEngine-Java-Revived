@@ -5,6 +5,8 @@ import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.resources.Resource;
+import dev.mv.engine.utils.CompositeInputStream;
+import dev.mv.utils.logger.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -25,21 +27,21 @@ public class BitmapFont implements Resource {
 
     private String resId;
 
-    public BitmapFont(String pngFileStream, String fntFileStream) throws IOException {
+    public BitmapFont(InputStream pngFileStream, InputStream fntFileStream) throws IOException {
         this(pngFileStream, fntFileStream, Resource.NO_R);
     }
 
-    public BitmapFont(String pngFileStream, String fntFileStream, String resId) throws IOException {
+    public BitmapFont(InputStream pngFileStream, InputStream fntFileStream, String resId) throws IOException {
         bitmap = loadTexture(pngFileStream);
         chars = createCharacters(fntFileStream);
         this.resId = resId;
         
     }
 
-    private Texture loadTexture(String pngFileStream) throws IOException {
+    private Texture loadTexture(InputStream pngFileStream) throws IOException {
         BufferedImage img = null;
         try {
-            img = ImageIO.read(this.getClass().getResourceAsStream(pngFileStream));
+            img = ImageIO.read(pngFileStream);
         } catch (IOException | NullPointerException e) {
             throw new IOException("PNG-File not found!");
         }
@@ -50,11 +52,11 @@ public class BitmapFont implements Resource {
         return RenderBuilder.newTexture(img);
     }
 
-    private Map<Integer, Glyph> createCharacters(String fntFileStream) throws IOException {
+    private Map<Integer, Glyph> createCharacters(InputStream fntFileStream) throws IOException {
         BufferedReader reader = null;
         Map<Integer, Glyph> map = new HashMap<>();
         try {
-            reader = new BufferedReader(new InputStreamReader(this.getClass().getResourceAsStream(fntFileStream)));
+            reader = new BufferedReader(new InputStreamReader(fntFileStream));
         } catch (NullPointerException e) {
             throw new IOException("FNT-File not found!");
         }
@@ -70,6 +72,9 @@ public class BitmapFont implements Resource {
 
         while (totalChars == -1) {
             String line = reader.readLine();
+            if (line == null) {
+                break;
+            }
             if (line.contains("common ")) {
                 lineHeight = Integer.parseInt(getCharAttrib(line, "lineHeight"));
                 atlasWidth = Integer.parseInt(getCharAttrib(line, "scaleW"));
@@ -238,6 +243,21 @@ public class BitmapFont implements Resource {
 
     @Override
     public void load(InputStream inputStream, String resId) throws IOException {
-        throw new UnimplementedException();
+        if (inputStream instanceof CompositeInputStream cis) {
+            InputStream png = cis.get(0);
+            InputStream fnt = cis.get(1);
+
+            bitmap = loadTexture(png);
+            chars = createCharacters(fnt);
+            this.resId = resId;
+
+        } else {
+            Logger.error("InputStream for BitmapFont should be of type CompositeInputStream!");
+            throw new IOException("InputStream for BitmapFont should be of type CompositeInputStream!");
+        }
+    }
+
+    public static InputStream resourceStream(InputStream png, InputStream fnt) {
+        return new CompositeInputStream(png, fnt);
     }
 }

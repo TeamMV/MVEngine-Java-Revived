@@ -1,6 +1,7 @@
 package dev.mv.engine.resources.types.border;
 
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.parsing.Parser;
 import dev.mv.engine.parsing.XMLParser;
 import dev.mv.engine.render.shared.Color;
@@ -58,6 +59,15 @@ public abstract class Border extends StaticDrawable {//1--2
         ctx.rectangle(x + width - strokeWidth, y + corners[3].radiusY(), strokeWidth, height - corners[3].radiusY() - corners[2].radiusY(), rot, ox, oy);
     }
 
+    //public void drawClip(DrawContext ctx, int x, int y, int width, int height, float rot, int ox, int oy) {
+    //    corners[0].drawFunc().drawClip(ctx, x, y, strokeWidth, rot, ox, oy);
+    //    corners[1].drawFunc().drawClip(ctx, x, y + height, strokeWidth, rot, ox, oy);
+    //    corners[2].drawFunc().drawClip(ctx, x + width, y + height, strokeWidth, rot, ox, oy);
+    //    corners[3].drawFunc().drawClip(ctx, x + width, y, strokeWidth, rot, ox, oy);
+//
+    //    throw new UnimplementedException();
+    //}
+
     public int getStrokeWidth() {
         return strokeWidth;
     }
@@ -80,13 +90,19 @@ public abstract class Border extends StaticDrawable {//1--2
         int strokeWidth = parser.intAttrib("strokeWidth", 3);
         Color color = Color.parse(parser.attrib("color", "255, 255, 255"));
         String type = parser.attrib("type", "new");
-         switch (type) {
+        int radiusX = parser.intAttrib("radiusX", 10);
+        int radiusY = parser.intAttrib("radiusX", 10);
+        if (parser.hasAttrib("radius")) {
+            radiusX = parser.intAttrib("radius");
+            radiusX = radiusY;
+        }
+        switch (type) {
             default -> copyFrom(parseCustom(parser.inner()));
             case "rect" -> copyFrom(new RectangleBorder(strokeWidth, color));
-            case "roundRect" -> copyFrom(new RoundRectangleBorder(strokeWidth, color, parser.intAttrib("radius", 10)));
-            case "circle" -> copyFrom(new CircleBorder(strokeWidth, color));
-            case "ellipse" -> copyFrom(new EllispeBorder(strokeWidth, color));
-            case "arc" -> copyFrom(new ArcBorder(strokeWidth, color, parser.intAttrib("range", 90), parser.intAttrib("start", 0)));
+            case "roundRect" -> copyFrom(new RoundRectangleBorder(strokeWidth, color, radiusX, radiusY));
+            case "circle" -> copyFrom(new CircleBorder(strokeWidth, color, radiusX));
+            case "ellipse" -> copyFrom(new EllispeBorder(strokeWidth, color, radiusX, radiusY));
+            case "arc" -> copyFrom(new ArcBorder(strokeWidth, color, parser.intAttrib("range", 90), parser.intAttrib("start", 0), radiusX, radiusY));
         };
     }
 

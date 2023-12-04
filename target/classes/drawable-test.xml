@@ -16,7 +16,5 @@
         <border type="ellipse" strokeWidth="3" color="255,255,0"/>
         <ellipse x="70%" y="60%" radiusX="30%" radiusY="20%"/>
         <rect x="50%" y="50%" width="20%" height="20%"/>
-        <border type="arc" strokeWidth="3" color="255, 255, 255" range="270" start="45"/>
-        <arc />
     </canvas>
 </drawable>

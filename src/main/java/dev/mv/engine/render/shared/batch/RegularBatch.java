@@ -3,12 +3,14 @@ package dev.mv.engine.render.shared.batch;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.shader.Shader;
 
+import static org.lwjgl.opengl.GL11.GL_LINES;
+import static org.lwjgl.opengl.GL11.GL_TRIANGLE_STRIP;
 import static org.lwjgl.opengl.GL46.GL_TRIANGLES;
 
 public class RegularBatch extends Batch {
 
-    public RegularBatch(int maxSize, Window win, Shader shader) {
-        super(maxSize, win, shader);
+    public RegularBatch(int maxSize, Window win, Shader shader, boolean stencil) {
+        super(maxSize, win, shader, stencil);
     }
 
     @Override

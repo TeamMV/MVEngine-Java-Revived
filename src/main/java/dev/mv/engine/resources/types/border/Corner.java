@@ -11,5 +11,6 @@ public record Corner(
 ) {
     interface DrawFunc {
         void draw(DrawContext ctx, int x, int y, int strokeWidth, float rotation, int ox, int oy);
+        //void drawClip(DrawContext ctx, int x, int y, int strokeWidth, float rotation, int ox, int oy, boolean ignore);
     }
 }

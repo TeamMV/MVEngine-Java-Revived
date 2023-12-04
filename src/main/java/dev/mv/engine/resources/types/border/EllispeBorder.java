@@ -3,11 +3,11 @@ package dev.mv.engine.resources.types.border;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.DrawContext;
 
-public class EllispeBorder extends Border{
+public class EllispeBorder extends RadiusBorder{
     private int radiusX, radiusY;
 
-    public EllispeBorder(int strokeWidth, Color color) {
-        super(strokeWidth, color);
+    public EllispeBorder(int strokeWidth, Color color, int radiusX, int radiusY) {
+        super(strokeWidth, color, radiusX, radiusY);
         createCorners();
     }
 
@@ -17,6 +17,11 @@ public class EllispeBorder extends Border{
         radiusY = height;
         createCorners();
         super.draw(ctx, x, y, width, height, rot, ox, oy);
+    }
+
+
+    public int getRadiusX() {
+        return radiusX;
     }
 
     @Override
@@ -29,9 +34,6 @@ public class EllispeBorder extends Border{
         return new Corner(radiusX / 2, radiusY / 2, (ctx, x, y, strokeWidth, rotation, ox, oy) -> {});
     }
 
-    public int getRadiusX() {
-        return radiusX;
-    }
 
     public void setRadiusX(int radiusX) {
         this.radiusX = radiusX;

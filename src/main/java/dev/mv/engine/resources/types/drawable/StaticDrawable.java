@@ -24,6 +24,11 @@ public class StaticDrawable extends Drawable {
     private final Transformations transformations;
     private final DrawOptions drawOptions;
 
+    public StaticDrawable() {
+        transformations = new Transformations();
+        drawOptions = new DrawOptions();
+    }
+
     public StaticDrawable(int canvasWidth, int canvasHeight) {
         super(canvasWidth, canvasHeight);
         transformations = new Transformations();

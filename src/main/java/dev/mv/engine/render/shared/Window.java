@@ -30,6 +30,8 @@ public interface Window {
 
     void setUPSCap(int cap);
 
+    float dpi();
+
     boolean isVsync();
 
     void setVsync(boolean vsync);

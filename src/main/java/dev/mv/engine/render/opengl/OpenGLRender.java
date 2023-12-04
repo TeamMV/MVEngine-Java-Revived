@@ -1,10 +1,14 @@
 package dev.mv.engine.render.opengl;
 
+import dev.mv.engine.Env;
 import dev.mv.engine.render.shared.Render;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.batch.Batch;
 import dev.mv.engine.render.shared.shader.Shader;
 import dev.mv.engine.render.shared.texture.Texture;
+import dev.mv.engine.render.utils.RenderConstants;
+
+import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL46.*;
 
@@ -16,7 +20,7 @@ public class OpenGLRender implements Render {
     }
 
     @Override
-    public void retrieveVertexData(Texture[] textures, int[] texIds, int[] indices, float[] vertices, int vboId, int iboId, Shader shader, int renderMode) {
+    public void retrieveVertexData(Texture[] textures, int[] texIds, int[] indices, float[] vertices, int vboId, int iboId, Shader shader, int renderMode, boolean isStencil) {
         if (window == null) {
             throw new IllegalStateException("Window is not set!");
         }
@@ -27,6 +31,16 @@ public class OpenGLRender implements Render {
                 if (texture == null) continue;
                 texture.bind(i++);
             }
+        }
+
+        if (isStencil) {
+            glStencilFunc(GL_ALWAYS, 1, 0xFF);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            glStencilMask(0xFF);
+        } else {
+            glStencilFunc(GL_EQUAL, 1, 0xFF);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            glStencilMask(0x00);
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
@@ -41,10 +55,7 @@ public class OpenGLRender implements Render {
         shader.uniform("uResX", (float) window.getWidth());
         shader.uniform("uResY", (float) window.getHeight());
 
-        shader.uniform("uProjection", window.getProjectionMatrix());
-        //shader.uniform("uCanvas", );
-
-        //System.out.println(Arrays.toString(vertices));
+        shader.uniform("uSmoothing", RenderConstants.FONT_SMOOTHING);
 
         glVertexAttribPointer(0, Batch.POSITION_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.POSITION_OFFSET_BYTES);
         glEnableVertexAttribArray(0);
@@ -58,18 +69,16 @@ public class OpenGLRender implements Render {
         glEnableVertexAttribArray(4);
         glVertexAttribPointer(5, Batch.TEX_ID_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TEX_ID_OFFSET_BYTES);
         glEnableVertexAttribArray(5);
-        glVertexAttribPointer(6, Batch.CANVAS_COORDS_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.CANVAS_COORDS_OFFSET_BYTES);
+        glVertexAttribPointer(6, Batch.USE_CAMERA_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.USE_CAMERA_OFFSET_BYTES);
         glEnableVertexAttribArray(6);
-        glVertexAttribPointer(7, Batch.CANVAS_DATA_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.CANVAS_DATA_OFFSET_BYTES);
+        glVertexAttribPointer(7, Batch.TRANSFORM_ROTATION_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TRANSFORM_ROTATION_OFFSET_BYTES);
         glEnableVertexAttribArray(7);
-        glVertexAttribPointer(8, Batch.USE_CAMERA_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.USE_CAMERA_OFFSET_BYTES);
+        glVertexAttribPointer(8, Batch.TRANSFORM_TRANSLATE_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TRANSFORM_TRANSLATE_OFFSET_BYTES);
         glEnableVertexAttribArray(8);
-        glVertexAttribPointer(9, Batch.TRANSFORM_ROTATION_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TRANSFORM_ROTATION_OFFSET_BYTES);
+        glVertexAttribPointer(9, Batch.TRANSFORM_ORIGIN_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TRANSFORM_ORIGIN_OFFSET_BYTES);
         glEnableVertexAttribArray(9);
-        glVertexAttribPointer(10, Batch.TRANSFORM_TRANSLATE_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TRANSFORM_TRANSLATE_OFFSET_BYTES);
+        glVertexAttribPointer(10, Batch.IS_FONT_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.IS_FONT_OFFSET_BYTES);
         glEnableVertexAttribArray(10);
-        glVertexAttribPointer(11, Batch.TRANSFORM_ORIGIN_SIZE, GL_FLOAT, false, Batch.VERTEX_SIZE_BYTES, Batch.TRANSFORM_ORIGIN_OFFSET_BYTES);
-        glEnableVertexAttribArray(11);
 
         glDrawElements(renderMode, indices.length, GL_UNSIGNED_INT, 0);
 
@@ -87,5 +96,10 @@ public class OpenGLRender implements Render {
     @Override
     public int genBuffers() {
         return glGenBuffers();
+    }
+
+    @Override
+    public void clearStencil() {
+        glClear(GL_STENCIL_BUFFER_BIT);
     }
 }

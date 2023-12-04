@@ -11,6 +11,7 @@ import dev.mv.engine.physics.Physics;
 import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.opengl.OpenGLWindow;
 import dev.mv.engine.render.shared.Window;
+import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.resources.ProgressAction;
 import dev.mv.engine.resources.ResourceLoader;
 import dev.mv.utils.collection.Vec;
@@ -29,7 +30,7 @@ public class MVEngine implements AutoCloseable {
 
     private static volatile MVEngine instance;
 
-    public String VERSION_STR = "v0.1.0";
+    public String VERSION_STR = "v0.5.2";
     public Version VERSION = Version.parse(VERSION_STR);
     private ApplicationConfig.RenderingAPI renderingApi = ApplicationConfig.RenderingAPI.OPENGL;
     private ApplicationConfig applicationConfig;
@@ -192,6 +193,10 @@ public class MVEngine implements AutoCloseable {
 
     public void loadResources(ProgressAction action) {
         Env.setResourceReady();
-        getResourceLoader().loadAll(action);
+        ResourceLoader loader = getResourceLoader();
+        loader.markFont("mv.default", BitmapFont.resourceStream(
+                MVEngine.class.getResourceAsStream("/assets/mvengine/font/default.png"),
+                MVEngine.class.getResourceAsStream("/assets/mvengine/font/default.fnt")));
+        loader.loadAll(action);
     }
 }

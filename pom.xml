@@ -43,7 +43,8 @@
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
-                            <addClasspath>false</addClasspath>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>dev.mv.engine.test.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>

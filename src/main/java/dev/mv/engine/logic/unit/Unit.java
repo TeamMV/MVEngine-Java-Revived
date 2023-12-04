@@ -9,7 +9,7 @@ public enum Unit {
     MI,
     PX;
 
-    public int intoPx(float value, int dpi) {
+    public int intoPx(float value, float dpi) {
         return switch (this) {
             case MM -> (int) (value * dpi / 25.4); // 1 inch = 25.4 mm
             case CM -> (int) (value * dpi / 2.54); // 1 inch = 2.54 cm

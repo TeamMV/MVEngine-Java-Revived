@@ -4,6 +4,7 @@ import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.shader.Shader;
 import dev.mv.engine.render.utils.RenderUtils;
+import dev.mv.utils.logger.Logger;
 import org.joml.*;
 import org.lwjgl.BufferUtils;
 
@@ -42,7 +43,7 @@ public class OpenGLShader implements Shader {
         glShaderSource(vertexShader, this.vertexCode);
         glCompileShader(vertexShader);
         if (glGetShaderi(vertexShader, GL_COMPILE_STATUS) != 1) {
-            System.out.println("vertex shader error: " + glGetShaderInfoLog(vertexShader));
+            Logger.error("vertex shader error: " + glGetShaderInfoLog(vertexShader));
             return;
         }
 
@@ -50,7 +51,7 @@ public class OpenGLShader implements Shader {
         glShaderSource(fragmentShader, this.fragmentCode);
         glCompileShader(fragmentShader);
         if (glGetShaderi(fragmentShader, GL_COMPILE_STATUS) != 1) {
-            System.out.println("fragment shader error: " + glGetShaderInfoLog(fragmentShader));
+            Logger.error("fragment shader error: " + glGetShaderInfoLog(fragmentShader));
             return;
         }
     }
@@ -62,12 +63,12 @@ public class OpenGLShader implements Shader {
 
         glLinkProgram(this.programID);
         if ((glGetProgrami(this.programID, GL_LINK_STATUS)) != 1) {
-            System.out.println("link program error: " + glGetProgramInfoLog(this.programID));
+            Logger.error("link program error: " + glGetProgramInfoLog(this.programID));
             return;
         }
         glValidateProgram(this.programID);
         if ((glGetProgrami(this.programID, GL_VALIDATE_STATUS)) != 1) {
-            System.out.println("link program error: " + glGetProgramInfoLog(this.programID));
+            Logger.error("link program error: " + glGetProgramInfoLog(this.programID));
             return;
         }
     }
