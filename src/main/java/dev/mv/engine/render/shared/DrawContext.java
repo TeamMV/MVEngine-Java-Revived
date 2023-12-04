@@ -9,7 +9,7 @@ import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
 import dev.mv.engine.resources.R;
 import dev.mv.engine.resources.types.animation.Animation;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 import org.joml.Vector2f;
 import org.joml.Vector4f;
 

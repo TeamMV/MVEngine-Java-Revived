@@ -1,6 +1,6 @@
 package dev.mv.engine.async;
 
-import dev.mv.utils.generic.pair.Pair;
+import dev.mv.engine.utils.generic.pair.Pair;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 

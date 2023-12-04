@@ -399,9 +399,9 @@
             <version>1.9.0</version>
         </dependency>
         <dependency>
-            <groupId>dev.mv</groupId>
-            <artifactId>utils</artifactId>
-            <version>1.0</version>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>24.0.1</version>
         </dependency>
     </dependencies>
 

@@ -14,9 +14,9 @@ import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.resources.ProgressAction;
 import dev.mv.engine.resources.ResourceLoader;
-import dev.mv.utils.collection.Vec;
-import dev.mv.utils.logger.Logger;
-import dev.mv.utils.misc.Version;
+import dev.mv.engine.utils.collection.Vec;
+import dev.mv.engine.utils.logger.Logger;
+import dev.mv.engine.utils.misc.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import java.io.PrintStream;

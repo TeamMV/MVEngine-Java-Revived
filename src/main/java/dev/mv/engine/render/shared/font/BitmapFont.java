@@ -6,7 +6,7 @@ import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.resources.Resource;
 import dev.mv.engine.utils.CompositeInputStream;
-import dev.mv.utils.logger.Logger;
+import dev.mv.engine.utils.logger.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

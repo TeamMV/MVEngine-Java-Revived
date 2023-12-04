@@ -9,7 +9,7 @@ import dev.mv.engine.game.language.Languages;
 import dev.mv.engine.game.mod.loader.ModFinder;
 import dev.mv.engine.game.mod.loader.ModLoader;
 import dev.mv.engine.game.registry.Registries;
-import dev.mv.utils.misc.Version;
+import dev.mv.engine.utils.misc.Version;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class Game {

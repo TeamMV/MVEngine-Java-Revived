@@ -1,7 +1,7 @@
 package dev.mv.engine.physics.shapes;
 
 import dev.mv.engine.MVEngine;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 import org.joml.Vector2f;
 
 public class Oval extends Shape {

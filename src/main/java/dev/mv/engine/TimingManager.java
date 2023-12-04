@@ -1,8 +1,8 @@
 package dev.mv.engine;
 
 import dev.mv.engine.render.shared.Window;
-import dev.mv.utils.generic.pair.Pair;
-import dev.mv.utils.generic.triplet.Triplet;
+import dev.mv.engine.utils.generic.pair.Pair;
+import dev.mv.engine.utils.generic.triplet.Triplet;
 
 import java.util.ArrayList;
 import java.util.List;

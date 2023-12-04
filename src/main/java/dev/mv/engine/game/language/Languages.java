@@ -1,9 +1,9 @@
 package dev.mv.engine.game.language;
 
 import dev.mv.engine.MVEngine;
-import dev.mv.utils.Utils;
-import dev.mv.utils.buffer.DynamicCharBuffer;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.buffer.DynamicCharBuffer;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

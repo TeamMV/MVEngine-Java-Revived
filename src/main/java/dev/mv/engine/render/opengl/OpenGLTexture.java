@@ -3,7 +3,7 @@ package dev.mv.engine.render.opengl;
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.MemoryStack;

@@ -5,7 +5,7 @@ import dev.mv.engine.game.mod.loader.ModIntegration;
 import dev.mv.engine.game.registry.api.GameResource;
 import dev.mv.engine.game.registry.api.GameResourceType;
 import dev.mv.engine.resources.AssetBundle;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.lang.reflect.Modifier;
 import java.util.HashMap;

@@ -10,8 +10,8 @@ import dev.mv.engine.game.registry.Registries;
 import dev.mv.engine.game.registry.Registry;
 import dev.mv.engine.game.registry.RegistryLoader;
 import dev.mv.engine.game.registry.RegistryType;
-import dev.mv.utils.Utils;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;

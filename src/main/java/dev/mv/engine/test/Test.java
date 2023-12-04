@@ -22,7 +22,7 @@ import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.custom.TestCustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
 import dev.mv.engine.utils.CompositeInputStream;
-import dev.mv.utils.logger.Logger;
+import dev.mv.engine.utils.logger.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

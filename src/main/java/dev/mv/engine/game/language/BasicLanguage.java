@@ -1,6 +1,6 @@
 package dev.mv.engine.game.language;
 
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 import java.util.HashMap;
 import java.util.Map;

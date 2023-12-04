@@ -1,6 +1,6 @@
 package dev.mv.engine.game.objects;
 
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 public class Scene {
     private Vec<SceneNode> nodes;

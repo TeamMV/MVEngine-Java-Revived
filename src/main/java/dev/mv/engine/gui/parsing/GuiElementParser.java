@@ -5,9 +5,9 @@ import dev.mv.engine.gui.elements.Attrib;
 import dev.mv.engine.gui.elements.GuiElement;
 import dev.mv.engine.gui.elements.GuiParsable;
 import dev.mv.engine.parsing.Parser;
-import dev.mv.utils.Utils;
-import dev.mv.utils.collection.Vec;
-import dev.mv.utils.generic.pair.Pair;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.collection.Vec;
+import dev.mv.engine.utils.generic.pair.Pair;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class GuiElementParser {
 
     public void prepare() {
         Vec<Class<?>> classes = Utils.getAllClasses(i -> !Utils.containsAny(i, "dev.mv.engine",
-                "dev.mv.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
+                "dev.mv.engine.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
                 "org.joml", "com.codedisaster.steamworks", "javax.annotation",
                 "org.jetbrains.annotations", "org.intellij", "com.intellij"));
         for (Class<?> clazz : classes) {

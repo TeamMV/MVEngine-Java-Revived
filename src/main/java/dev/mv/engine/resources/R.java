@@ -11,7 +11,7 @@ import dev.mv.engine.resources.types.SpriteSheet;
 import dev.mv.engine.resources.types.animation.Animation;
 import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.util.HashMap;
 import java.util.Map;

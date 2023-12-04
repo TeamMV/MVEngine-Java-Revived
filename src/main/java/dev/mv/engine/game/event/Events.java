@@ -1,7 +1,7 @@
 package dev.mv.engine.game.event;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 public class Events {
 
@@ -11,7 +11,7 @@ public class Events {
 
     public static void init() {
         Utils.getAllClasses(i -> !Utils.containsAny(i, "dev.mv.engine",
-                "dev.mv.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
+                "dev.mv.engine.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
                 "org.joml", "com.codedisaster.steamworks", "javax.annotation",
                 "org.jetbrains.annotations", "org.intellij"))
             .fastIter().forEach(clazz -> {

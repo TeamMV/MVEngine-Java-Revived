@@ -4,8 +4,8 @@ import dev.mv.engine.MVEngine;
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.files.Directory;
 import dev.mv.engine.game.mod.api.Mod;
-import dev.mv.utils.Utils;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.io.File;
 import java.io.IOException;

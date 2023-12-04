@@ -1,7 +1,7 @@
 package dev.mv.engine.game.mod.loader;
 
-import dev.mv.utils.Utils;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.io.InputStream;
 
@@ -15,7 +15,7 @@ public class ModIntegration {
 
     static {
         baseClasses = Utils.getAllClasses(i -> !Utils.containsAny(i, "dev.mv.engine",
-            "dev.mv.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
+            "dev.mv.engine.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
             "org.joml", "com.codedisaster.steamworks", "javax.annotation",
             "org.jetbrains.annotations", "org.intellij", "com.intellij"));
 

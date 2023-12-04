@@ -9,7 +9,7 @@ import dev.mv.engine.resources.R;
 import dev.mv.engine.resources.types.border.Border;
 import dev.mv.engine.resources.types.border.Corner;
 import dev.mv.engine.utils.BinaryFunction;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;

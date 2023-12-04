@@ -4,7 +4,7 @@ import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.shader.Shader;
 import dev.mv.engine.render.utils.RenderUtils;
-import dev.mv.utils.logger.Logger;
+import dev.mv.engine.utils.logger.Logger;
 import org.joml.*;
 import org.lwjgl.BufferUtils;
 

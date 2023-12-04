@@ -1,8 +1,8 @@
 package dev.mv.engine.physics;
 
 import de.fabmax.physxjni.Loader;
-import dev.mv.utils.Utils;
-import dev.mv.utils.logger.Logger;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.logger.Logger;
 import physx.common.*;
 import physx.cooking.*;
 import physx.geometry.PxConvexMesh;

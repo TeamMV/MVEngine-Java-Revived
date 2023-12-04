@@ -1,12 +1,12 @@
 package dev.mv.engine.audio;
 
 import dev.mv.engine.resources.R;
-import dev.mv.utils.async.PromiseNull;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.async.PromiseNull;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.util.Arrays;
 
-import static dev.mv.utils.Utils.*;
+import static dev.mv.engine.utils.Utils.*;
 
 public class DJ {
     volatile boolean forceStopped;

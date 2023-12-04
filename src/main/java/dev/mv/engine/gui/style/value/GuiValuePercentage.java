@@ -1,7 +1,7 @@
 package dev.mv.engine.gui.style.value;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 public class GuiValuePercentage<T> extends GuiValue<T> {
     private T value;

@@ -1,6 +1,6 @@
 package dev.mv.engine.game.objects;
 
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.util.function.Consumer;
 import java.util.function.Predicate;

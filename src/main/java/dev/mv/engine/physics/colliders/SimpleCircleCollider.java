@@ -5,7 +5,7 @@ import dev.mv.engine.physics.Collider;
 import dev.mv.engine.physics.Physics;
 import dev.mv.engine.physics.shapes.Circle;
 import dev.mv.engine.physics.shapes.Shape;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 public class SimpleCircleCollider implements Collider {
 

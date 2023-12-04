@@ -1,7 +1,7 @@
 package dev.mv.engine.render.shared.graphics;
 
 import dev.mv.engine.render.shared.DrawContext;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 public abstract class ParticleSystem {
     protected int maxNum = 1;

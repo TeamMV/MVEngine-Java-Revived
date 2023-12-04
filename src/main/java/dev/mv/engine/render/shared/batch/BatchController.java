@@ -5,7 +5,7 @@ import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.render.shared.shader.Shader;
 import dev.mv.engine.render.shared.texture.Texture;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 public class BatchController {
 

@@ -1,8 +1,8 @@
 package dev.mv.engine.async;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.utils.collection.Vec;
-import dev.mv.utils.generic.pair.Pair;
+import dev.mv.engine.utils.collection.Vec;
+import dev.mv.engine.utils.generic.pair.Pair;
 
 public class MonoThreadAsyncProcessor extends Thread {
 

@@ -7,7 +7,7 @@ import dev.mv.engine.parsing.XMLParser;
 import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.resources.types.SpriteSheet;
-import dev.mv.utils.misc.Version;
+import dev.mv.engine.utils.misc.Version;
 
 public class Main {
     public static void main(String[] args) throws Exception {

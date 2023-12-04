@@ -1,6 +1,6 @@
 package dev.mv.engine.resources;
 
-import dev.mv.utils.logger.Logger;
+import dev.mv.engine.utils.logger.Logger;
 
 public interface ProgressAction {
     void loading(String resId);

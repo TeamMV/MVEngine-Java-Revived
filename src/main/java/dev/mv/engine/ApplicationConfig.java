@@ -1,6 +1,6 @@
 package dev.mv.engine;
 
-import dev.mv.utils.misc.Version;
+import dev.mv.engine.utils.misc.Version;
 
 public class ApplicationConfig {
 

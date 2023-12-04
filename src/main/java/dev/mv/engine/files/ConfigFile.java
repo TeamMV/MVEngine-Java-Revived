@@ -1,14 +1,14 @@
 package dev.mv.engine.files;
 
-import dev.mv.utils.Utils;
-import dev.mv.utils.buffer.DynamicByteBuffer;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.buffer.DynamicByteBuffer;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import static dev.mv.utils.Utils.toObject;
+import static dev.mv.engine.utils.Utils.toObject;
 
 public class ConfigFile {
 

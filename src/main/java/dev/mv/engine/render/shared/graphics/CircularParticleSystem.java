@@ -2,8 +2,8 @@ package dev.mv.engine.render.shared.graphics;
 
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.DrawContext;
-import dev.mv.utils.Utils;
-import dev.mv.utils.async.PromiseNull;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.async.PromiseNull;
 
 public class CircularParticleSystem extends ParticleSystem {
     private int direction;

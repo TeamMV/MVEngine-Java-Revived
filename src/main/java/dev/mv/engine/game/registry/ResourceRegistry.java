@@ -2,8 +2,8 @@ package dev.mv.engine.game.registry;
 
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.resources.AssetBundle;
-import dev.mv.utils.Utils;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.lang.reflect.InvocationTargetException;
 

@@ -2,7 +2,7 @@ package dev.mv.engine.render.shared;
 
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.resources.Resource;
-import dev.mv.utils.ByteUtils;
+import dev.mv.engine.utils.ByteUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;

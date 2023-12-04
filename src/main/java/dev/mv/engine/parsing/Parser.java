@@ -2,7 +2,7 @@ package dev.mv.engine.parsing;
 
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.exceptions.ParserInvalidAttribException;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 import java.io.InputStream;
 

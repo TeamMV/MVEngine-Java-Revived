@@ -2,9 +2,9 @@ package dev.mv.engine.exceptions;
 
 import dev.mv.engine.MVEngine;
 import dev.mv.engine.game.mod.loader.ModIntegration;
-import dev.mv.utils.Utils;
-import dev.mv.utils.function.FaultyRunnable;
-import dev.mv.utils.logger.Logger;
+import dev.mv.engine.utils.Utils;
+import dev.mv.engine.utils.function.FaultyRunnable;
+import dev.mv.engine.utils.logger.Logger;
 
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;

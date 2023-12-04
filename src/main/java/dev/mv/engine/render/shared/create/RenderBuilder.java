@@ -7,7 +7,7 @@ import dev.mv.engine.render.opengl.OpenGLTexture;
 import dev.mv.engine.render.opengl.OpenGLTextureMap;
 import dev.mv.engine.render.shared.shader.Shader;
 import dev.mv.engine.render.shared.texture.Texture;
-import dev.mv.utils.Utils;
+import dev.mv.engine.utils.Utils;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;

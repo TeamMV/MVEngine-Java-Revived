@@ -1,7 +1,7 @@
 package dev.mv.engine.game.mod.loader;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.utils.collection.Vec;
+import dev.mv.engine.utils.collection.Vec;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
