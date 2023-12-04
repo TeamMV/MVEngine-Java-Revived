@@ -18,11 +18,8 @@ float sq(float x) {
 }
 
 void main() {
-    outColor = vec4(1.0);
-    return;
-
     if (fTexID > 0) {
-        if (fIsFont == 1 && false) {
+        if (fIsFont == 1) {
             float distance = texture(TEX_SAMPLER[int(fTexID) - 1], fTexCoords).a;
             float alpha = smoothstep(0.5 - uSmoothing, 0.5 + uSmoothing, distance);
             outColor = vec4(fColor.rgb, fColor.a * alpha);

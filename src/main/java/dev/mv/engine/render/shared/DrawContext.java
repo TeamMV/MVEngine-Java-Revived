@@ -695,17 +695,17 @@ public class DrawContext {
 
     public void mqxf(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mqxf"));
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxf"));
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mqxf"), rotation);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxf"), rotation);
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mqxf"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxf"), rotation, originX, originY);
     }
 
     /**

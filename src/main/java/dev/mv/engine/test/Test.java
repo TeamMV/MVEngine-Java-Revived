@@ -52,7 +52,6 @@ public class Test implements ApplicationLoop {
     public ProgressAction preload(MVEngine engine, Window window) {
         ResourceLoader loader = engine.getResourceLoader();
         loader.markColor("myColor", new ByteArrayInputStream("255,255,0,255".getBytes(StandardCharsets.UTF_8)));
-        loader.markTexture("inflatableGuy", Test.class.getResourceAsStream("/assets/mvengine/textures/inflatableGuy.png"));
         loader.markDrawable("test", Test.class.getResourceAsStream("/drawable-test.xml"));
         InputStream fontStream = BitmapFont.resourceStream(Test.class.getResourceAsStream("/assets/mvengine/font/roboto/roboto.png"), Test.class.getResourceAsStream("/assets/mvengine/font/roboto/roboto.fnt"));
         loader.markFont("roboto", fontStream);
@@ -99,10 +98,9 @@ public class Test implements ApplicationLoop {
     public void draw(MVEngine engine, Window window) {
         ctx.background(69, 69, 69);
         ctx.color(Color.WHITE);
-        ctx.triangle(100, 100, 200, 200, 300, 100);
-        //ctx.color(Color.WHITE);
-        //ctx.font(R.font.get("roboto"));
-        //ctx.text(false, 100, 100, 100, "Hello");
+        ctx.color(Color.WHITE);
+        ctx.font(R.font.get("roboto"));
+        ctx.text(false, 100, 100, 16, "Hello");
 
         //guiElement.draw(ctx);
         //rot += 0.05f;

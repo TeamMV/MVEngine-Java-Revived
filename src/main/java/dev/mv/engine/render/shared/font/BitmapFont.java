@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BitmapFont implements Resource {
+public class BitmapFont implements Font {
     private Map<Integer, Glyph> chars;
     private Texture bitmap;
     private int maxWidth = 0, maxHeight = 0, maxXOff = 0, maxYOff = 0;

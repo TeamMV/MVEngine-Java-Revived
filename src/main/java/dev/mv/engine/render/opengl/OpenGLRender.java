@@ -33,15 +33,15 @@ public class OpenGLRender implements Render {
             }
         }
 
-        if (isStencil) {
-            glStencilFunc(GL_ALWAYS, 1, 0xFF);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-            glStencilMask(0xFF);
-        } else {
-            glStencilFunc(GL_EQUAL, 1, 0xFF);
-            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-            glStencilMask(0x00);
-        }
+        //if (isStencil) {
+        //    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        //    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        //    glStencilMask(0xFF);
+        //} else {
+        //    glStencilFunc(GL_EQUAL, 1, 0xFF);
+        //    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        //    glStencilMask(0x00);
+        //}
 
         glBindBuffer(GL_ARRAY_BUFFER, vboId);
         glBufferData(GL_ARRAY_BUFFER, vertices, GL_DYNAMIC_DRAW);

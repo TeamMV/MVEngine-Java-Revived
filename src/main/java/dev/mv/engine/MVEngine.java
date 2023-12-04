@@ -14,6 +14,7 @@ import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.resources.ProgressAction;
 import dev.mv.engine.resources.ResourceLoader;
+import dev.mv.engine.test.Test;
 import dev.mv.engine.utils.collection.Vec;
 import dev.mv.engine.utils.logger.Logger;
 import dev.mv.engine.utils.misc.Version;
@@ -197,6 +198,9 @@ public class MVEngine implements AutoCloseable {
         loader.markFont("mv.default", BitmapFont.resourceStream(
                 MVEngine.class.getResourceAsStream("/assets/mvengine/font/default.png"),
                 MVEngine.class.getResourceAsStream("/assets/mvengine/font/default.fnt")));
+        loader.markTexture("mv.inflatableGuy", Test.class.getResourceAsStream("/assets/mvengine/textures/inflatableGuy.png"));
+        loader.markTexture("mv.mqxf", Test.class.getResourceAsStream("/assets/mvengine/textures/mqxf.png"));
+        loader.markTexture("mv.mqxfMuscle", Test.class.getResourceAsStream("/assets/mvengine/textures/mqxf-muscle.png"));
         loader.loadAll(action);
     }
 }
