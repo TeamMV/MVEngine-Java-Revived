@@ -3,7 +3,7 @@ package dev.mv.engine.render.shared;
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.render.shared.batch.Vertex;
 import dev.mv.engine.render.shared.batch.VertexGroup;
-import dev.mv.engine.render.shared.font.BitmapFont;
+import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.render.shared.font.Glyph;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
@@ -18,7 +18,7 @@ public class DrawContext {
     private boolean useCamera;
     private Gradient gradient;
     private float chromaTilt = -0.5f, chromaCompress = 1.0f;
-    private BitmapFont font;
+    private Font font;
     private VertexGroup verts = new VertexGroup();
     private Vertex v1 = new Vertex(), v2 = new Vertex(), v3 = new Vertex(), v4 = new Vertex();
     private Vector4f canvas;
@@ -114,7 +114,7 @@ public class DrawContext {
         this.gradient = gradient.copy();
     }
 
-    public void font(BitmapFont font) {
+    public void font(Font font) {
         this.font = font;
     }
 
@@ -635,16 +635,16 @@ public class DrawContext {
         text(textChroma, x, y, height, text, font, 0.0f, 0, 0);
     }
 
-    public void text(boolean textChroma, int x, int y, int height, String text, BitmapFont font) {
+    public void text(boolean textChroma, int x, int y, int height, String text, Font font) {
         text(textChroma, x, y, height, text, font, 0.0f, 0, 0);
     }
 
-    public void text(boolean textChroma, int x, int y, int height, String text, BitmapFont font, float rotation) {
+    public void text(boolean textChroma, int x, int y, int height, String text, Font font, float rotation) {
         int width = font.getWidth(text, height);
         text(textChroma, x, y, height, text, font, rotation, x + width / 4, y + height / 4);
     }
 
-    public void text(boolean textChroma, int x, int y, int height, String text, BitmapFont font, float rotation, int originX, int originY) {
+    public void text(boolean textChroma, int x, int y, int height, String text, Font font, float rotation, int originX, int originY) {
         int charX = 0;
         float radRotation = (float) Math.toRadians(rotation);
 
@@ -678,7 +678,7 @@ public class DrawContext {
             float uy1 = uvs[0].y;
             float uy0 = uvs[1].y;
 
-            int texID = window.getBatchController().addTexture(font.getBitmap(), isStripped, isClip);
+            int texID = window.getBatchController().addTexture(font.getTexture(), isStripped, isClip);
 
             window.getBatchController().addVertices(verts.set(
                 v1.put(ax, ay2, 0.0f, radRotation, originX, originY, gradient.bottomLeft.getRed(), gradient.bottomLeft.getGreen(), gradient.bottomLeft.getBlue(), gradient.bottomLeft.getAlpha(), ux0, uy0, (float) texID),
@@ -695,17 +695,17 @@ public class DrawContext {
 
     public void mqxf(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxf"));
+        image(x, y, width, height, R.texture.get("mv.mqxf").waitForChecked());
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxf"), rotation);
+        image(x, y, width, height, R.texture.get("mv.mqxf").waitForChecked(), rotation);
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxf"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.get("mv.mqxf").waitForChecked(), rotation, originX, originY);
     }
 
     /**
@@ -718,32 +718,32 @@ public class DrawContext {
      */
     public void inflatableGuy(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.inflatableGuy"));
+        image(x, y, width, height, R.texture.get("inflatableGuy").waitForChecked());
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.inflatableGuy"), rotation);
+        image(x, y, width, height, R.texture.get("inflatableGuy").waitForChecked(), rotation);
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.inflatableGuy"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.get("inflatableGuy").waitForChecked(), rotation, originX, originY);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxfMuscle"));
+        image(x, y, width, height, R.texture.get("mqxfMuscle").waitForChecked());
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxfMuscle"), rotation);
+        image(x, y, width, height, R.texture.get("mqxfMuscle").waitForChecked(), rotation);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.<TextureRegion>get("mv.mqxfMuscle"), rotation, originX, originY);
+        image(x, y, width, height, R.texture.get("mqxfMuscle").waitForChecked(), rotation, originX, originY);
     }
 
 }

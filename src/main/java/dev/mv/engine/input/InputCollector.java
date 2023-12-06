@@ -6,35 +6,45 @@ import org.lwjgl.glfw.*;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class InputCollector {
-    private InputProcessor inputProcessor;
+    private InputProcessor processor;
+
     private Window window;
 
-    public InputCollector(InputProcessor inputProcessor, Window window) {
-        this.inputProcessor = inputProcessor;
+    public InputCollector(Window window) {
+        this.processor = InputProcessor.distributor();
         this.window = window;
     }
 
     public void start() {
         glfwSetInputMode(window.getGlfwId(), GLFW_LOCK_KEY_MODS, GLFW_TRUE);
 
-        glfwSetScrollCallback(window.getGlfwId(), new GLFWScrollCallbackI() {
-            @Override
-            public void invoke(long win, double xOffset, double yOffset) {
-                inputProcessor.mouseScrollUpdate((int) xOffset, (int) yOffset);
+        glfwSetScrollCallback(window.getGlfwId(), (win, xOffset, yOffset) -> {
+            if (win != window.getGlfwId()) return;
+            if (xOffset != 0.0) {
+                processor.mouseScrollX((float) xOffset);
+            }
+            if (yOffset != 0.0) {
+                processor.mouseScrollX((float) yOffset);
             }
         });
 
         glfwSetMouseButtonCallback(window.getGlfwId(), new GLFWMouseButtonCallback() {
             @Override
             public void invoke(long win, int button, int action, int mods) {
-                inputProcessor.mouseButtonUpdate(button, MouseAction.fromGlfwAction(action));
+                if (action == GLFW_PRESS) {
+                    processor.mousePress(Input.mouseFromGLFW(button));
+                }
+                if (action == GLFW_RELEASE) {
+                    processor.mouseRelease(Input.mouseFromGLFW(button));
+                }
             }
         });
 
         glfwSetCursorPosCallback(window.getGlfwId(), new GLFWCursorPosCallback() {
             @Override
             public void invoke(long wind, double x, double y) {
-                inputProcessor.mousePosUpdate((int) x, window.getHeight() - (int) y);
+                processor.mouseMoveX((int) x);
+                processor.mouseMoveY(window.getHeight() - (int) y);
             }
         });
 
@@ -42,11 +52,9 @@ public class InputCollector {
             @Override
             public void invoke(long window, int key, int scancode, int action, int mods) {
                 if (action == GLFW_PRESS) {
-                    inputProcessor.keyUpdate(key, KeyAction.TYPE, mods);
+                    processor.keyPress(Input.keyFromGLFW(key));
                 } else if (action == GLFW_RELEASE) {
-                    inputProcessor.keyUpdate(key, KeyAction.RELEASE, mods);
-                } else if (action == GLFW_REPEAT) {
-                    inputProcessor.keyUpdate(key, KeyAction.REPEAT, mods);
+                    processor.keyRelease(Input.keyFromGLFW(key));
                 }
             }
         });
@@ -54,34 +62,8 @@ public class InputCollector {
         glfwSetCharCallback(window.getGlfwId(), new GLFWCharCallback() {
             @Override
             public void invoke(long window, int codepoint) {
-                inputProcessor.charTyped(codepoint);
+                processor.keyType((char) codepoint);
             }
         });
-    }
-
-    public void setInputProcessor(InputProcessor inputProcessor) {
-        this.inputProcessor = inputProcessor;
-    }
-
-    public enum KeyAction {
-        TYPE,
-        REPEAT,
-        RELEASE
-    }
-
-    public enum MouseAction {
-        PRESS(GLFW_PRESS),
-        RELEASE(GLFW_RELEASE);
-
-        MouseAction(int action) {
-        }
-
-        public static MouseAction fromGlfwAction(int action) {
-            return switch (action) {
-                case GLFW_PRESS -> PRESS;
-                case GLFW_RELEASE -> RELEASE;
-                default -> null;
-            };
-        }
     }
 }

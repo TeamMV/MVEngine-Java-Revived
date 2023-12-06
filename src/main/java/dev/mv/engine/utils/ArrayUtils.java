@@ -151,4 +151,14 @@ public class ArrayUtils {
         return data;
     }
 
+    @SafeVarargs
+    public static <T> T[] merge(T[]... arrays) {
+        T[] res = arrays[0];
+        int ptr = arrays[0].length;
+        for (int i = 1; i < arrays.length; i++) {
+            System.arraycopy(arrays[i], 0, res, ptr, arrays[i].length);
+            ptr += arrays[i].length;
+        }
+        return res;
+    }
 }

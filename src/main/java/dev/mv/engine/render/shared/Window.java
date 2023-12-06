@@ -1,7 +1,7 @@
 package dev.mv.engine.render.shared;
 
 import dev.mv.engine.ApplicationLoop;
-import dev.mv.engine.input.GlfwClipboard;
+import dev.mv.engine.input.Clipboard;
 import dev.mv.engine.render.shared.batch.BatchController;
 import org.joml.Matrix4f;
 
@@ -58,7 +58,7 @@ public interface Window {
 
     Camera getCamera();
 
-    GlfwClipboard getClipboard();
+    Clipboard getClipboard();
 
     BatchController getBatchController();
 

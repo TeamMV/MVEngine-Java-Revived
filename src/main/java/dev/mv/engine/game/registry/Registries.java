@@ -4,7 +4,6 @@ import dev.mv.engine.MVEngine;
 import dev.mv.engine.game.mod.loader.ModIntegration;
 import dev.mv.engine.game.registry.api.GameResource;
 import dev.mv.engine.game.registry.api.GameResourceType;
-import dev.mv.engine.resources.AssetBundle;
 import dev.mv.engine.utils.collection.Vec;
 
 import java.lang.reflect.Modifier;
@@ -42,13 +41,13 @@ public class Registries {
         return resourceTypes;
     }
 
-    public static <T> AssetBundle getLinkedAssetBundle(Class<? extends T> type) {
-        Registry<T> registry = registry(type);
-        if (registry instanceof ResourceRegistry<T> resourceRegistry) {
-            return resourceRegistry.getAssetBundle(type);
-        }
-        return null;
-    }
+    //public static <T> AssetBundle getLinkedAssetBundle(Class<? extends T> type) {
+    //    Registry<T> registry = registry(type);
+    //    if (registry instanceof ResourceRegistry<T> resourceRegistry) {
+    //        return resourceRegistry.getAssetBundle(type);
+    //    }
+    //    return null;
+    //}
 
     public static <T, R extends T> RegisteredObject<R> get(Class<R> type) {
         Registry<T> registry = registry(type);

@@ -1,5 +1,6 @@
 package dev.mv.engine.utils;
 
+import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.utils.async.Promise;
 import dev.mv.engine.utils.async.PromiseNull;
 import dev.mv.engine.utils.async.PromiseRejectedException;
@@ -13,9 +14,13 @@ import dev.mv.engine.utils.misc.ClassFinder;
 import dev.mv.engine.utils.nullHandler.NullHandler;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Array;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -1061,5 +1066,31 @@ public class Utils {
 
     public static String plural(int count, String singular, String plural) {
         return count == 1 ? singular : plural;
+    }
+
+    public static InputStream streamString(String string) {
+        return new ByteArrayInputStream(string.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static InputStream streamString(String string, Charset charset) {
+        return new ByteArrayInputStream(string.getBytes(charset));
+    }
+
+    public static String stringFromStream(InputStream inputStream) {
+        try {
+            return new String(inputStream.readAllBytes());
+        } catch (IOException e) {
+            Exceptions.send(new IllegalArgumentException("Could not read string from input string!"));
+            return null;
+        }
+    }
+
+    public static String stringFromStream(InputStream inputStream, Charset charset) {
+        try {
+            return new String(inputStream.readAllBytes(), charset);
+        } catch (IOException e) {
+            Exceptions.send(new IllegalArgumentException("Could not read string from input string!"));
+            return null;
+        }
     }
 }

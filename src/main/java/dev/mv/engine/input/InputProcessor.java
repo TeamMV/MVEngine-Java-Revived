@@ -1,17 +1,20 @@
 package dev.mv.engine.input;
 
-public interface InputProcessor {
-    static InputProcessor defaultProcessor() {
-        return DefaultInputProcessor.INSTANCE;
+import dev.mv.engine.utils.Toggle;
+
+public interface InputProcessor extends Toggle {
+    static InputProcessorDistributor distributor() {
+        return InputProcessorDistributor.getInstance();
     }
 
-    void mousePosUpdate(int x, int y);
+    void keyPress(int key);
+    void keyType(char key);
+    void keyRelease(int key);
 
-    void mouseScrollUpdate(int sx, int sy);
-
-    void mouseButtonUpdate(int btn, InputCollector.MouseAction action);
-
-    void keyUpdate(int key, InputCollector.KeyAction action, int mods);
-
-    void charTyped(int charCode);
+    void mousePress(int btn);
+    void mouseRelease(int btn);
+    void mouseMoveX(int x);
+    void mouseMoveY(int y);
+    void mouseScrollX(float value);
+    void mouseScrollY(float value);
 }

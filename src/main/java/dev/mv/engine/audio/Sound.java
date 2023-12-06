@@ -1,10 +1,9 @@
 package dev.mv.engine.audio;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.game.mod.loader.ModIntegration;
-import dev.mv.engine.resources.HeavyResource;
 import dev.mv.engine.resources.Resource;
+import dev.mv.engine.resources.ResourcePath;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,36 +11,31 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.openal.AL11.*;
 
-public class Sound implements HeavyResource {
+public class Sound implements Resource {
     protected Audio audio;
     protected boolean loop;
     protected State state;
     protected float volume = 0.3f;
-    protected String path;
+    protected ResourcePath path;
     protected boolean loaded;
-    int alID, id, buffer;
-    
-    private String resId;
+    int alID = -1, id = -1, buffer = -1;
 
-    Sound(Audio audio, String path, boolean loop) {
-        this(audio, path, loop, Resource.NO_R);
-    }
+    private float[] pos;
 
-    Sound(Audio audio, String path, boolean loop, String resId) {
+    Sound(Audio audio, ResourcePath path) {
         this.audio = audio;
-        this.loop = loop;
+        loop = false;
         this.path = path;
-        this.resId = resId;
-        
+        pos = new float[] {0.0f, 0.0f, 0.0f};
     }
 
     @Override
     public void load() {
         if (loaded) return;
         buffer = alGenBuffers();
-        try (InputStream stream = ModIntegration.getResourceAsStream(path)) {
+        try (InputStream stream = path.getInputStream()) {
             SoundFormat format = audio.getFormat(stream);
-            Raw data = format.load(stream, path);
+            Raw data = format.load(stream, path.getPath());
             alBufferData(buffer, data.channels > 1 ? AL_FORMAT_STEREO16 : AL_FORMAT_MONO16, data.bytes, data.sampleRate);
             loaded = true;
         } catch (IOException e) {
@@ -52,24 +46,34 @@ public class Sound implements HeavyResource {
 
     @Override
     public void drop() {
+        if (!loaded) return;
         if (getState() != State.STOPPED) stop();
         alDeleteBuffers(buffer);
+        buffer = -1;
         loaded = false;
     }
 
+    @Override
+    public boolean isLoaded() {
+        return loaded;
+    }
+
     public int play() {
-        checkLoad();
+        if (state == State.PLAYING) return id;
+        if (!loaded) load();
         alID = audio.nextFreeSource();
         if (alID == -1) return -1;
         alSourcei(alID, AL_BUFFER, buffer);
         alSourcei(alID, AL_LOOPING, loop ? 0 : 1);
         alSourcef(alID, AL_GAIN, volume);
+        updatePosition();
         getState();
         if (state != State.PLAYING) {
             state = State.PLAYING;
             alSourcePlay(alID);
         }
-        return audio.bind(this);
+        id = audio.bind(this);
+        return id;
     }
 
     public void pause() {
@@ -91,6 +95,7 @@ public class Sound implements HeavyResource {
             audio.freeSource(alID);
             alID = -1;
             audio.unbind(id);
+            id = -1;
         }
     }
 
@@ -98,10 +103,6 @@ public class Sound implements HeavyResource {
         if (alID == -1) return State.STOPPED;
         state = State.valueOf(alGetSourcei(alID, AL_SOURCE_STATE));
         return state;
-    }
-
-    private void checkLoad() {
-        if (!loaded) Exceptions.send(new IllegalStateException("Sound not loaded"));
     }
 
     public boolean isLooping() {
@@ -120,22 +121,31 @@ public class Sound implements HeavyResource {
         this.volume = volume;
     }
 
-    @Override
-    public String resId() {
-        return resId;
+    public void setPosition(float x, float y, float z) {
+        pos = new float[] {x, y, z};
+        if (state != State.STOPPED && alID != -1) {
+            updatePosition();
+        }
     }
 
-    @Override
-    public Type type() {
-        return Type.SOUND;
+    public void setRelativePosition(float x, float y, float z) {
+        float[] p = audio.getListenerPosition();
+        setPosition(p[0] + x, p[1] + y, p[2] + z);
+    }
+
+    public void setLeft() {
+        setRelativePosition(-1.0f, 0.0f, 0.0f);
+    }
+
+    public void setRight() {
+        setRelativePosition(1.0f, 0.0f, 0.0f);
+    }
+
+    private void updatePosition() {
+        alSource3f(alID, AL_POSITION, pos[0], pos[1], pos[2]);
     }
 
     public Sound() {}
-
-    @Override
-    public void load(InputStream inputStream, String resId) throws IOException {
-        throw new UnimplementedException();
-    }
 
     public enum State {
         PLAYING(AL_PLAYING),

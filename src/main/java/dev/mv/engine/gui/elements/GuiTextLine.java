@@ -15,7 +15,7 @@ public class GuiTextLine extends GuiElement implements GuiTextElement {
     private BitmapFont font;
 
     public GuiTextLine() {
-        font = R.font.get("mv.default");
+        font = R.font.get("mv.default").waitForChecked();
     }
 
     @Override

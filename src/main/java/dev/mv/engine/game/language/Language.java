@@ -1,5 +1,7 @@
 package dev.mv.engine.game.language;
 
+import dev.mv.engine.resources.Resource;
+
 import java.util.Map;
 
 public interface Language {

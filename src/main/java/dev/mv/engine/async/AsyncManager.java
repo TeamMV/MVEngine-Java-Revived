@@ -9,13 +9,13 @@ import java.util.Comparator;
 import java.util.List;
 
 public class AsyncManager {
-    private List<MonoThreadAsyncProcessor> workers;
+    private static List<MonoThreadAsyncProcessor> workers;
 
-    public AsyncManager(int amountWorkers) {
+    public static void init(int amountWorkers) {
         if (amountWorkers <= 0) {
             Exceptions.send(new IllegalArgumentException("Amount of workers must be greater than 0"));
         } else {
-            this.workers = new ArrayList<>(amountWorkers);
+            workers = new ArrayList<>(amountWorkers);
             for (int i = 0; i < amountWorkers; i++) {
                 MonoThreadAsyncProcessor p = new MonoThreadAsyncProcessor();
                 p.start();
@@ -24,8 +24,8 @@ public class AsyncManager {
         }
     }
 
-    public void postRunnable(AsyncRunnable runnable) {
-        var p =  workers.stream().min(Comparator.comparingInt(MonoThreadAsyncProcessor::countTasks)).get();
+    public static void postRunnable(AsyncRunnable runnable) {
+        var p = workers.stream().min(Comparator.comparingInt(MonoThreadAsyncProcessor::countTasks)).get();
         p.postRunnable(runnable);
     }
 }

@@ -1,8 +1,10 @@
 package dev.mv.engine.render.opengl;
 
+import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
+import dev.mv.engine.resources.ResourcePath;
 import dev.mv.engine.utils.Utils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.stb.STBImage;
@@ -22,6 +24,8 @@ public class OpenGLTexture implements Texture {
     protected int id;
     protected int width;
     protected int height;
+    protected ResourcePath path;
+    protected boolean isLoaded;
 
     public OpenGLTexture(String filename) throws IOException {
         ByteBuffer buffer;
@@ -47,6 +51,10 @@ public class OpenGLTexture implements Texture {
     }
 
     public OpenGLTexture(BufferedImage img) {
+        createFromBufferedImage(img);
+    }
+
+    private void createFromBufferedImage(BufferedImage img) {
         this.width = img.getWidth();
         this.height = img.getHeight();
         this.pixels = new int[this.width * this.height];
@@ -56,11 +64,15 @@ public class OpenGLTexture implements Texture {
             int pixel = pixels[i];
             pixelBuffer.put((byte) ((pixel >> 16) & 0xFF)); //r
             pixelBuffer.put((byte) ((pixel >> 8) & 0xFF));  //g
-            pixelBuffer.put((byte) (pixel & 0xFF));           //b
+            pixelBuffer.put((byte) (pixel & 0xFF));         //b
             pixelBuffer.put((byte) ((pixel >> 24) & 0xFF)); //a
         }
         pixelBuffer.flip();
         create(pixelBuffer);
+    }
+
+    public OpenGLTexture(ResourcePath path) throws IOException {
+        this.path = path;
     }
 
     protected void create(ByteBuffer pixelBuffer) {
@@ -111,8 +123,23 @@ public class OpenGLTexture implements Texture {
     }
 
     @Override
-    public void draw(DrawContext ctx2D, Object... args) {
-        int[] values = Utils.toPrimitive(Utils.cast(args, int.class));
-        ctx2D.image(values[0], values[1], values[2], values[3], this, values[4]);
+    public void load() {
+        try {
+            createFromBufferedImage(ImageIO.read(path.getInputStream()));
+            isLoaded = true;
+        } catch (Exception e) {
+            Exceptions.send(e);
+        }
+    }
+
+    @Override
+    public void drop() {
+        glDeleteTextures(id);
+        isLoaded = false;
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return isLoaded;
     }
 }

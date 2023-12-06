@@ -9,6 +9,7 @@ public class ApplicationConfig {
     private RenderingAPI renderingApi = RenderingAPI.OPENGL;
     private GameDimension dimension = GameDimension.COMBINED;
     private int simultaneousAudioSources = 256;
+    private int amountAsyncWorkers = 10;
 
     public String getName() {
         return name;
@@ -52,6 +53,15 @@ public class ApplicationConfig {
 
     public ApplicationConfig setSimultaneousAudioSources(int simultaneousAudioSources) {
         this.simultaneousAudioSources = simultaneousAudioSources;
+        return this;
+    }
+
+    public int getAmountAsyncWorkers() {
+        return amountAsyncWorkers;
+    }
+
+    public ApplicationConfig setAmountAsyncWorkers(int amountAsyncWorkers) {
+        this.amountAsyncWorkers = amountAsyncWorkers;
         return this;
     }
 

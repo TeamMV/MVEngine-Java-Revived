@@ -85,4 +85,8 @@ public abstract class Directory {
     public String getRelativePath() {
         return relativePath;
     }
+
+    public String getAbsolutePath() {
+        return path;
+    }
 }

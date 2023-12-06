@@ -15,9 +15,9 @@ public class ModIntegration {
 
     static {
         baseClasses = Utils.getAllClasses(i -> !Utils.containsAny(i, "dev.mv.engine",
-            "dev.mv.engine.utils", "org.lwjgl", "de.fabmax.physxjni", "physx.",
-            "org.joml", "com.codedisaster.steamworks", "javax.annotation",
-            "org.jetbrains.annotations", "org.intellij", "com.intellij"));
+                "org.lwjgl", "de.fabmax.physxjni", "physx.",
+                "org.joml", "com.codedisaster.steamworks", "javax.annotation",
+                "org.jetbrains.annotations", "org.intellij", "com.intellij"));
 
         classes = baseClasses.clone();
     }

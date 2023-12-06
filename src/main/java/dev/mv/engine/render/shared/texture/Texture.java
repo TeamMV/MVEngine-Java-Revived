@@ -1,8 +1,8 @@
 package dev.mv.engine.render.shared.texture;
 
-import dev.mv.engine.render.shared.Drawable;
+import dev.mv.engine.resources.Resource;
 
-public interface Texture extends Drawable {
+public interface Texture extends Resource {
     void bind(int index);
 
     void unbind();

@@ -1,15 +1,15 @@
 package dev.mv.engine.audio;
 
+import dev.mv.engine.resources.ResourcePath;
+
 import static org.lwjgl.openal.AL11.*;
 
 public final class Music extends Sound {
 
-    private String path;
     private float nextOffset, startingOffset;
 
-    Music(Audio audio, String path) {
-        super(audio, path, false);
-        this.path = path;
+    Music(Audio audio, ResourcePath path) {
+        super(audio, path);
     }
 
     public void terminate() {
@@ -17,7 +17,7 @@ public final class Music extends Sound {
     }
 
     public int play() {
-        load();
+        if (!loaded) load();
         alID = audio.nextFreeSource();
         if (alID == -1) return -1;
         alSourcei(alID, AL_BUFFER, buffer);
@@ -34,7 +34,8 @@ public final class Music extends Sound {
             state = State.PLAYING;
             alSourcePlay(alID);
         }
-        return audio.bind(this);
+        id = audio.bind(this);
+        return id;
     }
 
     public void stop() {
@@ -47,7 +48,7 @@ public final class Music extends Sound {
             audio.freeSource(alID);
             alID = -1;
             audio.unbind(id);
-            drop();
+            id = -1;
         }
     }
 

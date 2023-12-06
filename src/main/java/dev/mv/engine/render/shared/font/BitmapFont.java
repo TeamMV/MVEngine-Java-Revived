@@ -1,19 +1,17 @@
 package dev.mv.engine.render.shared.font;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.resources.Resource;
+import dev.mv.engine.resources.ResourcePath;
 import dev.mv.engine.utils.CompositeInputStream;
+import dev.mv.engine.utils.Utils;
 import dev.mv.engine.utils.logger.Logger;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -24,18 +22,17 @@ public class BitmapFont implements Font {
     private Texture bitmap;
     private int maxWidth = 0, maxHeight = 0, maxXOff = 0, maxYOff = 0;
     private int spacing = 0;
-
-    private String resId;
+    private ResourcePath pngPath, fntPath;
+    private boolean isLoaded;
 
     public BitmapFont(InputStream pngFileStream, InputStream fntFileStream) throws IOException {
-        this(pngFileStream, fntFileStream, Resource.NO_R);
-    }
-
-    public BitmapFont(InputStream pngFileStream, InputStream fntFileStream, String resId) throws IOException {
         bitmap = loadTexture(pngFileStream);
         chars = createCharacters(fntFileStream);
-        this.resId = resId;
-        
+    }
+
+    public BitmapFont(ResourcePath pngPath, ResourcePath fntPath) {
+        this.pngPath = pngPath;
+        this.fntPath = fntPath;
     }
 
     private Texture loadTexture(InputStream pngFileStream) throws IOException {
@@ -127,21 +124,35 @@ public class BitmapFont implements Font {
         return "";
     }
 
+    @Override
     public int getSpacing() {
         return (int) (maxWidth / 10f);
     }
 
+    @Override
     public int getMaxHeight() {
         return maxHeight;
     }
 
+    @Override
     public int getMaxHeight(int height) {
         return (int) (maxHeight * multiplier(height));
     }
 
+    @Override
     public int getHeight(char c) {
         try {
             return chars.get(c + 0).getHeight();
+        } catch (NullPointerException e) {
+            Exceptions.send(new IllegalArgumentException("Character '" + c + "' not supported by this font!"));
+            return -1;
+        }
+    }
+
+    @Override
+    public int getHeight(char c, int height) {
+        try {
+            return (int) (getHeight(c) * multiplier(height));
         } catch (NullPointerException e) {
             Exceptions.send(new IllegalArgumentException("Character '" + c + "' not supported by this font!"));
             return -1;
@@ -157,6 +168,7 @@ public class BitmapFont implements Font {
         }
     }
 
+    @Override
     public int getWidth(String s, int height) {
         if (s.length() == 0) return 0;
         int result = 0;
@@ -173,6 +185,7 @@ public class BitmapFont implements Font {
         return result;
     }
 
+    @Override
     public int possibleAmountOfChars(String s, int limitWidth, int height) {
         for (int i = 0; i <= s.length(); i++) {
             if (limitWidth < getWidth(s.substring(s.length() - i), height)) {
@@ -182,22 +195,27 @@ public class BitmapFont implements Font {
         return s.length();
     }
 
+    @Override
     public int getMaxXOffset() {
         return maxXOff;
     }
 
+    @Override
     public int getMaxXOffset(int height) {
         return (int) (maxXOff * multiplier(height));
     }
 
+    @Override
     public int getMaxYOffset() {
         return maxYOff;
     }
 
+    @Override
     public int getMaxYOffset(int height) {
         return (int) (maxYOff * multiplier(height));
     }
 
+    @Override
     public Glyph getGlyph(char c) {
         try {
             return chars.get(c + 0);
@@ -207,6 +225,7 @@ public class BitmapFont implements Font {
         }
     }
 
+    @Override
     public Glyph[] getGlyphs(String s) {
         Glyph[] glyphs = new Glyph[s.length()];
 
@@ -217,11 +236,13 @@ public class BitmapFont implements Font {
         return glyphs;
     }
 
+    @Override
     public boolean contains(char c) {
         return chars.containsKey(c + 0);
     }
 
-    public Texture getBitmap() {
+    @Override
+    public Texture getTexture() {
         return bitmap;
     }
 
@@ -229,35 +250,30 @@ public class BitmapFont implements Font {
         return (float) height / (float) maxHeight;
     }
 
-    @Override
-    public String resId() {
-        return resId;
+    public static InputStream resourceStream(InputStream png, InputStream fnt) {
+        return new CompositeInputStream(Utils.streamString("BMP"), png, fnt);
     }
 
     @Override
-    public Type type() {
-        return Type.FONT;
-    }
-
-    public BitmapFont() {}
-
-    @Override
-    public void load(InputStream inputStream, String resId) throws IOException {
-        if (inputStream instanceof CompositeInputStream cis) {
-            InputStream png = cis.get(0);
-            InputStream fnt = cis.get(1);
-
-            bitmap = loadTexture(png);
-            chars = createCharacters(fnt);
-            this.resId = resId;
-
-        } else {
-            Logger.error("InputStream for BitmapFont should be of type CompositeInputStream!");
-            throw new IOException("InputStream for BitmapFont should be of type CompositeInputStream!");
+    public void load() {
+        try {
+                loadTexture(pngPath.getInputStream());
+                createCharacters(fntPath.getInputStream());
+                isLoaded = true;
+        } catch (IOException e) {
+            Exceptions.send(e);
         }
     }
 
-    public static InputStream resourceStream(InputStream png, InputStream fnt) {
-        return new CompositeInputStream(png, fnt);
+    @Override
+    public void drop() {
+        chars.clear();
+        bitmap.drop();
+        isLoaded = false;
+    }
+
+    @Override
+    public boolean isLoaded() {
+        return isLoaded;
     }
 }

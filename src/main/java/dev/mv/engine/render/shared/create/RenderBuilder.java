@@ -7,6 +7,7 @@ import dev.mv.engine.render.opengl.OpenGLTexture;
 import dev.mv.engine.render.opengl.OpenGLTextureMap;
 import dev.mv.engine.render.shared.shader.Shader;
 import dev.mv.engine.render.shared.texture.Texture;
+import dev.mv.engine.resources.ResourcePath;
 import dev.mv.engine.utils.Utils;
 
 import javax.imageio.ImageIO;
@@ -35,6 +36,14 @@ public class RenderBuilder {
     public static Texture newTexture(BufferedImage image) throws IOException {
         if (MVEngine.instance().getRenderingApi() == ApplicationConfig.RenderingAPI.OPENGL) {
             return new OpenGLTexture(image);
+        } else {
+            return null;
+        }
+    }
+
+    public static Texture newTexture(ResourcePath path) throws IOException {
+        if (MVEngine.instance().getRenderingApi() == ApplicationConfig.RenderingAPI.OPENGL) {
+            return new OpenGLTexture(path);
         } else {
             return null;
         }

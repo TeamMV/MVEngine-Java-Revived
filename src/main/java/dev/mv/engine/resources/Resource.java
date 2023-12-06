@@ -1,36 +1,46 @@
 package dev.mv.engine.resources;
 
+import dev.mv.engine.MVEngine;
 import dev.mv.engine.audio.Album;
+import dev.mv.engine.audio.Audio;
 import dev.mv.engine.audio.Music;
 import dev.mv.engine.audio.Sound;
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.render.shared.Color;
+import dev.mv.engine.render.shared.create.RenderBuilder;
 import dev.mv.engine.render.shared.font.BitmapFont;
+import dev.mv.engine.render.shared.font.Font;
+import dev.mv.engine.render.shared.font.Fonts;
+import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
 import dev.mv.engine.resources.types.SpriteSheet;
 import dev.mv.engine.resources.types.animation.Animation;
 import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
 import dev.mv.engine.resources.types.drawable.StaticDrawable;
+import dev.mv.engine.utils.CompositeInputStream;
+import dev.mv.engine.utils.Utils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 public interface Resource {
-    String NO_R = "";
-    
+
+    void load();
+
+    void drop();
+
+    boolean isLoaded();
+
     enum Type {
         RESOURCE(CustomResource.class),
-        COLOR(Color.class),
-        TEXTURE(TextureRegion.class),
-        FONT(BitmapFont.class),
+        TEXTURE(Texture.class),
+        FONT(Font.class),
         SOUND(Sound.class),
         MUSIC(Music.class),
-        ALBUM(Album.class),
-        DRAWABLE(StaticDrawable.class),
-        SPRITE_SHEET(SpriteSheet.class),
-        ANIMATION(Animation.class),
         ;
 
         private Class<?> clazz;
@@ -44,59 +54,54 @@ public interface Resource {
         }
     }
 
-    String resId();
-    Type type();
-
-    default void register() {
-        switch (type()) {
-            default -> {}
-            case RESOURCE -> R.resource.register(resId(), (CustomResource) this);
-            case DRAWABLE -> R.drawable.register(resId(), (Drawable) this);
-            case COLOR -> R.color.register(resId(), (Color) this);
-            case SOUND -> R.sound.register(resId(), (Sound) this);
-            case MUSIC -> R.music.register(resId(), (Music) this);
-            case ALBUM -> R.album.register(resId(), (Album) this);
-            case FONT -> R.font.register(resId(), (BitmapFont) this);
-            case TEXTURE -> R.texture.register(resId(), (TextureRegion) this);
-            case ANIMATION -> R.animation.register(resId(), (Animation) this);
-            case SPRITE_SHEET -> R.spriteSheet.register(resId(), (SpriteSheet) this);
-        }
-    }
-
-    default void load(InputStream inputStream) throws IOException {
-        load(inputStream, NO_R);
-    }
-
-    void load(InputStream inputStream, String resId) throws IOException;
-
-    static Resource create(Type type, InputStream inputStream) throws IOException {
-        return create(type, inputStream, NO_R);
-    }
-
-    static Resource create(Type type, InputStream inputStream, String resId) throws IOException {
+    static Resource create(Type type, String resId, ResourcePath... paths) throws IOException {
         try {
             if (type != Type.RESOURCE) {
-                Resource res = (Resource) type.clazz().getDeclaredConstructor().newInstance();
-                res.load(inputStream, resId);
-                res.register();
-                return res;
-            } else {
-                char c = (char) inputStream.read();
-                StringBuilder className = new StringBuilder();
-                while (c != '\n') {
-                    className.append(c);
-                    c = (char) inputStream.read();
+                switch (type) {
+                    case TEXTURE -> {
+                        Texture texture = RenderBuilder.newTexture(paths[0]);
+                        R.texture.register(resId, texture);
+                    }
+                    case FONT -> {
+                        Fonts.Type t = Fonts.getTypeFromPaths(paths);
+                        Font font = switch (t) {
+                            case UNSUPPORTED -> {
+                                Exceptions.send(new IllegalArgumentException("Unsupported type of font used in resource "+resId+"!"));
+                                yield null;
+                            }
+                            case BMP -> new BitmapFont(paths[0], paths[1]);
+                        };
+                        R.font.register(resId, font);
+                    }
+                    case SOUND -> {
+                        Audio audio = MVEngine.instance().getAudio();
+                        Sound sound = audio.newSound(paths[0]);
+                        R.sound.register(resId, sound);
+                    }
+                    case MUSIC -> {
+                        Audio audio = MVEngine.instance().getAudio();
+                        Music music = audio.newMusic(paths[0]);
+                        R.music.register(resId, music);
+                    }
                 }
+            } else {
+                if (!paths[0].isBlank()) {
+                    Exceptions.send(new IllegalArgumentException("Custom resources must have a blank ResourcePath as the first component containing the class name!"));
+                    return null;
+                }
+                String className = paths[0].getPath();
 
-                Class<? extends CustomResource> clazz = (Class<? extends CustomResource>) Class.forName(className.toString());
-                CustomResource res = clazz.getDeclaredConstructor().newInstance();
-                res.load(inputStream, resId);
-                res.register();
+                Class<? extends CustomResource> clazz = (Class<? extends CustomResource>) Class.forName(className);
+                Constructor<? extends CustomResource> loadMethod = clazz.getDeclaredConstructor(ResourcePath[].class);
+                ResourcePath[] args = new ResourcePath[paths.length - 1];
+                System.arraycopy(paths, 1, args, 0, paths.length - 1);
+                CustomResource res = loadMethod.newInstance(args);
+                R.resource.register(resId, res);
             }
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            Exceptions.send("CUSTOM_RESOURCE_CREATION", Resource.class.getName());
+        } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+            Exceptions.send("CUSTOM_RESOURCE_CREATION", type.clazz.getName());
         } catch (NoSuchMethodException e) {
-            Exceptions.send("NO_EMPTY_CONSTRUCTOR", Resource.class.getName());
+            Exceptions.send("NO_RESOURCE_CONSTRUCTOR", type.clazz.getName());
         } catch (ClassNotFoundException e) {
             Exceptions.send(e);
         }

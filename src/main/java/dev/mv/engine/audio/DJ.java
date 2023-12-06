@@ -24,7 +24,7 @@ public class DJ {
     public void play(String id) {
         forceStopped = false;
         if (id == null) return;
-        Music music = R.music.get(id);
+        Music music = R.music.get(id).waitForChecked();
         if (playing != null) {
             if (playing.getState() == Sound.State.PAUSED) {
                 resume();

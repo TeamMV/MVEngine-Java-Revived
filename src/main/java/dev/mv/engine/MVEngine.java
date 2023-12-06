@@ -1,5 +1,6 @@
 package dev.mv.engine;
 
+import dev.mv.engine.async.AsyncManager;
 import dev.mv.engine.audio.Audio;
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.exceptions.handle.ExceptionHandler;
@@ -14,13 +15,12 @@ import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.resources.ProgressAction;
 import dev.mv.engine.resources.ResourceLoader;
+import dev.mv.engine.resources.ResourceManager;
 import dev.mv.engine.test.Test;
-import dev.mv.engine.utils.collection.Vec;
 import dev.mv.engine.utils.logger.Logger;
 import dev.mv.engine.utils.misc.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,11 +42,13 @@ public class MVEngine implements AutoCloseable {
     private Physics physics;
     private Audio audio;
     private final ResourceLoader resourceLoader;
+    private ResourceManager resourceManager;
 
     private MVEngine() {
         exceptionHandler = ExceptionHandler.Default.INSTANCE;
         loopers = new ArrayList<>();
         resourceLoader = new ResourceLoader();
+        resourceManager = new ResourceManager();
         Logger.setLoggerOutput((s, logLevel) -> {
             if (logLevel == Logger.LogLevel.WARN || logLevel == Logger.LogLevel.ERROR) {
                 System.err.print(s);
@@ -83,13 +85,14 @@ public class MVEngine implements AutoCloseable {
         }
         instance = new MVEngine();
         Exceptions.readExceptionINI(MVEngine.class.getResourceAsStream("/assets/mvengine/exceptions.ini"));
-        Input.init();
         instance.audio = Audio.init(config.getSimultaneousAudioSources());
         boolean _2d = config.getDimension() == ApplicationConfig.GameDimension.ONLY_2D || config.getDimension() == ApplicationConfig.GameDimension.COMBINED;
         boolean _3d = config.getDimension() == ApplicationConfig.GameDimension.ONLY_3D || config.getDimension() == ApplicationConfig.GameDimension.COMBINED;
         if (_2d) {
             instance.physics = Physics.init();
         }
+
+        AsyncManager.init(config.getAmountAsyncWorkers());
 
         instance.applicationConfig = config;
         GLFWErrorCallback.createPrint(System.err).set();
@@ -131,17 +134,6 @@ public class MVEngine implements AutoCloseable {
         } else {
             throw new RuntimeException("Please use OpenGL as the rendering API, since it is the only one supported at this moment.");
         }
-    }
-
-    public void handleInputs(Window window) {
-        InputProcessor inputProcessor = InputProcessor.defaultProcessor();
-        inputCollector = new InputCollector(inputProcessor, window);
-        inputCollector.start();
-        Input.init();
-    }
-
-    public void setInputProcessor(InputProcessor inputProcessor) {
-        inputCollector.setInputProcessor(inputProcessor);
     }
 
     @Override
@@ -192,15 +184,13 @@ public class MVEngine implements AutoCloseable {
         return resourceLoader;
     }
 
+    public ResourceManager getResourceManager() {
+        return resourceManager;
+    }
+
     public void loadResources(ProgressAction action) {
         Env.setResourceReady();
         ResourceLoader loader = getResourceLoader();
-        loader.markFont("mv.default", BitmapFont.resourceStream(
-                MVEngine.class.getResourceAsStream("/assets/mvengine/font/default.png"),
-                MVEngine.class.getResourceAsStream("/assets/mvengine/font/default.fnt")));
-        loader.markTexture("mv.inflatableGuy", Test.class.getResourceAsStream("/assets/mvengine/textures/inflatableGuy.png"));
-        loader.markTexture("mv.mqxf", Test.class.getResourceAsStream("/assets/mvengine/textures/mqxf.png"));
-        loader.markTexture("mv.mqxfMuscle", Test.class.getResourceAsStream("/assets/mvengine/textures/mqxf-muscle.png"));
         loader.loadAll(action);
     }
 }

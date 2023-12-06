@@ -6,7 +6,7 @@ import dev.mv.engine.resources.Resource;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class TextureRegion implements Resource {
+public class TextureRegion {
     Texture tex;
     private int id;
     private int width;
@@ -61,7 +61,7 @@ public class TextureRegion implements Resource {
 
     @Override
     public Type type() {
-        return Type.TEXTURE;
+        return Type.TEXTURE_REGION;
     }
 
     public TextureRegion() {}

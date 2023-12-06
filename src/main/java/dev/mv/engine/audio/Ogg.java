@@ -13,7 +13,7 @@ import static org.lwjgl.stb.STBVorbis.stb_vorbis_decode_memory;
 
 public class Ogg implements SoundFormat {
     @Override
-    public Sound.Raw load(InputStream stream, String name) {
+    public Sound.Raw load(InputStream stream, String path) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             IntBuffer channels = stack.callocInt(1);
             IntBuffer sampleRate = stack.callocInt(1);
@@ -23,7 +23,7 @@ public class Ogg implements SoundFormat {
             ByteBuffer raw = MemoryUtil.memByteBuffer(Objects.requireNonNullElse(stb_vorbis_decode_memory(buffer, channels, sampleRate), MemoryUtil.memAllocShort(1)));
             return new Sound.Raw(raw, channels.get(), sampleRate.get());
         } catch (Exception e) {
-            Exceptions.send("BROKEN_AUDIO_FILE", name);
+            Exceptions.send("BROKEN_AUDIO_FILE", path);
         }
         return null;
     }

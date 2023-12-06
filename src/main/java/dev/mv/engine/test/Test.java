@@ -2,6 +2,7 @@ package dev.mv.engine.test;
 
 import dev.mv.engine.ApplicationLoop;
 import dev.mv.engine.MVEngine;
+import dev.mv.engine.audio.Sound;
 import dev.mv.engine.files.Directory;
 import dev.mv.engine.files.FileManager;
 import dev.mv.engine.gui.elements.GuiElement;
@@ -21,7 +22,7 @@ import dev.mv.engine.resources.types.animation.FrameAnimation;
 import dev.mv.engine.resources.types.custom.CustomResource;
 import dev.mv.engine.resources.types.custom.TestCustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
-import dev.mv.engine.utils.CompositeInputStream;
+import dev.mv.engine.utils.Utils;
 import dev.mv.engine.utils.logger.Logger;
 
 import java.io.ByteArrayInputStream;
@@ -41,6 +42,8 @@ public class Test implements ApplicationLoop {
 
     private Drawable drawable;
 
+    private Sound sound;
+
     private float rot = 0;
 
     private GuiElement guiElement;
@@ -51,13 +54,8 @@ public class Test implements ApplicationLoop {
     @Override
     public ProgressAction preload(MVEngine engine, Window window) {
         ResourceLoader loader = engine.getResourceLoader();
-        loader.markColor("myColor", new ByteArrayInputStream("255,255,0,255".getBytes(StandardCharsets.UTF_8)));
-        loader.markDrawable("test", Test.class.getResourceAsStream("/drawable-test.xml"));
-        InputStream fontStream = BitmapFont.resourceStream(Test.class.getResourceAsStream("/assets/mvengine/font/roboto/roboto.png"), Test.class.getResourceAsStream("/assets/mvengine/font/roboto/roboto.fnt"));
-        loader.markFont("roboto", fontStream);
-
-        InputStream resStream = new ByteArrayInputStream("Hello World".getBytes(StandardCharsets.UTF_8));
-        loader.markResource("myCustomRes", CustomResource.resourceStream(resStream, TestCustomResource.class));
+        sound = engine.getAudio().newSound("/assets/mvengine/sound/11mono.wav");
+        sound.load();
         return ProgressAction.simple();
     }
 
@@ -69,7 +67,7 @@ public class Test implements ApplicationLoop {
         camera.setSpeed(0.2f);
         cameraController = new DefaultCameraController(camera);
 
-        TestCustomResource tcr = R.resource.get("myCustomRes");
+        TestCustomResource tcr = (TestCustomResource) R.resource.get("myCustomRes").waitForChecked();
         Logger.info(tcr.string);
 
         GuiTextLine textLine = new GuiTextLine();
@@ -86,6 +84,8 @@ public class Test implements ApplicationLoop {
         textLine.moveTo(100, 100);
         guiElement = textLine;
 
+        sound.play();
+
         //engine.getAudio().getDJ().loop("bestSong");
     }
 
@@ -99,8 +99,15 @@ public class Test implements ApplicationLoop {
         ctx.background(69, 69, 69);
         ctx.color(Color.WHITE);
         ctx.color(Color.WHITE);
-        ctx.font(R.font.get("roboto"));
+        ctx.font(R.font.get("roboto").waitForChecked());
         ctx.text(false, 100, 100, 16, "Hello");
+
+        sound.setPosition((float) Math.sin(rot), 0.0f, 0.0f);
+
+        ctx.color(Color.RED);
+        ctx.rectangle((int) Utils.map((float) Math.sin(rot), -1, 1, 0, window.getWidth()), 100, 50, 50);
+
+        rot += 0.1f;
 
         //guiElement.draw(ctx);
         //rot += 0.05f;

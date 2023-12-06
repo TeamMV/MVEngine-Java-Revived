@@ -1,7 +1,6 @@
 package dev.mv.engine.game.registry;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.engine.resources.AssetBundle;
 import dev.mv.engine.utils.Utils;
 import dev.mv.engine.utils.collection.Vec;
 
@@ -69,32 +68,31 @@ public class ResourceRegistry<T> implements Registry<T> {
             .value();
     }
 
-    public <R extends T> AssetBundle getAssetBundle(Class<R> clazz) {
-        return Utils.ifNotNull(items
-                .fastIter()
-                .filter(item -> item.clazz.equals(clazz))
-                .first())
-            .thenReturn(RegisteredResource::getAssetBundle)
-            .getGenericReturnValue()
-            .value();
-    }
+    //public <R extends T> AssetBundle getAssetBundle(Class<R> clazz) {
+    //    return Utils.ifNotNull(items
+    //            .fastIter()
+    //            .filter(item -> item.clazz.equals(clazz))
+    //            .first())
+    //        .thenReturn(RegisteredResource::getAssetBundle)
+    //        .getGenericReturnValue()
+    //        .value();
+    //}
 
-    public AssetBundle getAssetBundle(String id) {
-        return Utils.ifNotNull(items
-                .fastIter()
-                .filter(item -> item.id.equals(id))
-                .first())
-            .thenReturn(RegisteredResource::getAssetBundle)
-            .getGenericReturnValue()
-            .value();
-    }
+    //public AssetBundle getAssetBundle(String id) {
+    //    return Utils.ifNotNull(items
+    //            .fastIter()
+    //            .filter(item -> item.id.equals(id))
+    //            .first())
+    //        .thenReturn(RegisteredResource::getAssetBundle)
+    //        .getGenericReturnValue()
+    //        .value();
+    //}
 
 
     private class RegisteredResource<R extends T> implements RegisteredObject<R> {
 
         private String id;
         private Class<R> clazz;
-        private AssetBundle assetBundle;
 
         private RegisteredResource(String id, Class<R> clazz) {
             this.id = id;
@@ -122,10 +120,6 @@ public class ResourceRegistry<T> implements Registry<T> {
         @Override
         public String getId() {
             return id;
-        }
-
-        public AssetBundle getAssetBundle() {
-            return assetBundle;
         }
 
         @Override

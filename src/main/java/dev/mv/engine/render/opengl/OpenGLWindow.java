@@ -3,8 +3,9 @@ package dev.mv.engine.render.opengl;
 import dev.mv.engine.ApplicationLoop;
 import dev.mv.engine.MVEngine;
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.engine.input.GlfwClipboard;
+import dev.mv.engine.input.Clipboard;
 import dev.mv.engine.input.Input;
+import dev.mv.engine.input.InputCollector;
 import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.shared.*;
 import dev.mv.engine.render.shared.batch.BatchController;
@@ -47,10 +48,11 @@ public class OpenGLWindow implements Window {
     private MVEngine engine;
 
     private Camera camera;
-    private GlfwClipboard clipboard;
+    private Clipboard clipboard;
+    private InputCollector collector;
     private String fpsStringBefore = "";
 
-    private Vec<Consumer<Window>> resizeCallbacks = new Vec<>();
+    private final Vec<Consumer<Window>> resizeCallbacks = new Vec<>();
 
     public OpenGLWindow(WindowCreateInfo info) {
         this.info = info;
@@ -73,11 +75,11 @@ public class OpenGLWindow implements Window {
         renderAdapter = m -> m;
         render2D = new OpenGLRender(this);
         camera = new Camera();
-        clipboard = new GlfwClipboard(this);
+        clipboard = new Clipboard(this);
+        collector = new InputCollector(this);
         batchController = new BatchController(this, 1000);
         batchController.start();
 
-        engine.handleInputs(this);
         if (applicationLoop != null) {
             try {
                 ProgressAction action = applicationLoop.preload(engine, this);
@@ -224,7 +226,7 @@ public class OpenGLWindow implements Window {
                     }
                 }
 
-                updateInputs();
+                Input.update();
                 updateProjection2D();
                 batchController.finishAndRender();
 
@@ -239,33 +241,6 @@ public class OpenGLWindow implements Window {
                 frames = 0;
                 ticks = 0;
                 timer += 1000;
-            }
-        }
-    }
-
-    private void updateInputs() {
-        if (Input.mouse[Input.MOUSE_SCROLL_X] == 1.0 || Input.mouse[Input.MOUSE_SCROLL_X] == -1.0) {
-            Input.mouse[Input.MOUSE_SCROLL_X] = 0;
-        }
-        if (Input.mouse[Input.MOUSE_SCROLL_Y] == 1.0 || Input.mouse[Input.MOUSE_SCROLL_Y] == -1.0) {
-            Input.mouse[Input.MOUSE_SCROLL_Y] = 0;
-        }
-
-        for (int i = 0; i < Input.keys.length; i++) {
-            if (Input.keys[i] == Input.State.ONPRESSED) {
-                Input.keys[i] = Input.State.PRESSED;
-            }
-            if (Input.keys[i] == Input.State.ONRELEASED) {
-                Input.keys[i] = Input.State.RELEASED;
-            }
-        }
-
-        for (int i = 0; i < Input.buttons.length; i++) {
-            if (Input.buttons[i] == Input.State.ONPRESSED) {
-                Input.buttons[i] = Input.State.PRESSED;
-            }
-            if (Input.buttons[i] == Input.State.ONRELEASED) {
-                Input.buttons[i] = Input.State.RELEASED;
             }
         }
     }
@@ -417,7 +392,7 @@ public class OpenGLWindow implements Window {
     }
 
     @Override
-    public GlfwClipboard getClipboard() {
+    public Clipboard getClipboard() {
         return clipboard;
     }
 

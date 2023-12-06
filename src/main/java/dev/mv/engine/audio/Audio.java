@@ -2,6 +2,7 @@ package dev.mv.engine.audio;
 
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.exceptions.IllegalAudioFormatException;
+import dev.mv.engine.resources.ResourcePath;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.ALC;
@@ -45,6 +46,8 @@ public class Audio {
     private ALCapabilities capabilities;
     private DJ DJ;
 
+    private float[] listenerPosition;
+
     private SoundFormat ogg = new Ogg();
     private SoundFormat wav = new Wav();
     private SoundFormat mp3 = new Mp3();
@@ -77,12 +80,9 @@ public class Audio {
             .put(new float[]{0.0f, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f});
         ((Buffer) orientation).flip();
         alListenerfv(AL_ORIENTATION, orientation);
-        FloatBuffer velocity = BufferUtils.createFloatBuffer(3).put(new float[]{0.0f, 0.0f, 0.0f});
-        ((Buffer) velocity).flip();
-        alListenerfv(AL_VELOCITY, velocity);
-        FloatBuffer position = BufferUtils.createFloatBuffer(3).put(new float[]{0.0f, 0.0f, 0.0f});
-        ((Buffer) position).flip();
-        alListenerfv(AL_POSITION, position);
+        alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
+        alListener3f(AL_POSITION, 0.0f, 0.0f, 0.0f);
+        listenerPosition = new float[]{0.0f, 0.0f, 0.0f};
     }
 
     public static synchronized Audio init(int simultaneousSources) {
@@ -137,15 +137,11 @@ public class Audio {
         return null;
     }
 
-    public Sound newSound(String path) {
-        return newSound(path, false);
+    public Sound newSound(ResourcePath path) {
+        return new Sound(this, path);
     }
 
-    public Sound newSound(String path, boolean loop) {
-        return new Sound(this, path, loop);
-    }
-
-    public Music newMusic(String path) {
+    public Music newMusic(ResourcePath path) {
         return new Music(this, path);
     }
 
@@ -205,6 +201,15 @@ public class Audio {
         alcDestroyContext(context);
         alcCloseDevice(device);
         instance = null;
+    }
+
+    public void setListenerPosition(float x, float y, float z) {
+        listenerPosition = new float[]{x, y, z};
+        alListener3f(AL_POSITION, x, y, z);
+    }
+
+    public float[] getListenerPosition() {
+        return listenerPosition.clone();
     }
 
 }

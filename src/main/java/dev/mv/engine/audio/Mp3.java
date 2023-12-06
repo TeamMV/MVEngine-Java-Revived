@@ -4,7 +4,7 @@ import java.io.InputStream;
 
 public class Mp3 implements SoundFormat {
     @Override
-    public Sound.Raw load(InputStream stream, String name) {
+    public Sound.Raw load(InputStream stream, String path) {
 
         return null;
     }
