@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.*;
 
-public abstract class Drawable extends Into implements Resource {
+public abstract class Drawable extends Into {
     protected int cnvsW, cnvsH;
     protected String resId;
 
@@ -44,16 +44,6 @@ public abstract class Drawable extends Into implements Resource {
 
     public void setCnvsH(int cnvsH) {
         this.cnvsH = cnvsH;
-    }
-
-    @Override
-    public String resId() {
-        return resId;
-    }
-
-    @Override
-    public Type type() {
-        return Type.DRAWABLE;
     }
 
     protected static class Transformations {//all take in width and height and return the value in px
@@ -174,7 +164,6 @@ public abstract class Drawable extends Into implements Resource {
 
     public Drawable() {}
 
-    @Override
     public void load(InputStream inputStream, String resId) throws IOException {
         parse(new XMLParser(inputStream));
     }

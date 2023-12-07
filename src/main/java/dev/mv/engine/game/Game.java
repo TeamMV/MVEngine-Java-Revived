@@ -1,6 +1,7 @@
 package dev.mv.engine.game;
 
 import dev.mv.engine.MVEngine;
+import dev.mv.engine.exceptions.UnimplementedException;
 import dev.mv.engine.files.ConfigFile;
 import dev.mv.engine.files.Directory;
 import dev.mv.engine.files.FileManager;
@@ -9,6 +10,8 @@ import dev.mv.engine.game.language.Languages;
 import dev.mv.engine.game.mod.loader.ModFinder;
 import dev.mv.engine.game.mod.loader.ModLoader;
 import dev.mv.engine.game.registry.Registries;
+import dev.mv.engine.resources.ProgressAction;
+import dev.mv.engine.resources.ResourceLoader;
 import dev.mv.engine.utils.misc.Version;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,11 +20,13 @@ public abstract class Game {
     private Directory gameDirectory;
     private ConfigFile config;
     private GameManager manager;
+    private ResourceLoader loader;
     private boolean modded;
 
     protected Game() {
         MVEngine.instance().setGame(this);
         manager = new GameManager(this);
+        loader = new ResourceLoader(getGameId());
     }
 
     private void setupGameDir() {
@@ -46,6 +51,13 @@ public abstract class Game {
         if (modded) {
             ModLoader.loadAndInitMods();
         }
+        loadAssets();
+        MVEngine.instance().loadResources(ProgressAction.quiet());
+    }
+
+    protected void loadAssetsAutomatically() {
+        //TODO
+        throw new UnimplementedException();
     }
 
     public Directory getGameDirectory() {
@@ -59,6 +71,14 @@ public abstract class Game {
     protected ConfigFile config() {
         return config;
     }
+
+    protected ResourceLoader resourceLoader() {
+        return loader;
+    }
+
+    public abstract void run();
+
+    public abstract void loadAssets();
 
     public abstract @NotNull String getGameId();
 

@@ -17,11 +17,6 @@ class WindowManager implements ApplicationLoop {
     }
 
     @Override
-    public ProgressAction preload(MVEngine engine, Window window) throws Exception {
-        return ProgressAction.simple();
-    }
-
-    @Override
     public void start(MVEngine engine, Window window) {
         ctx = new DrawContext(window);
         camera = window.getCamera();

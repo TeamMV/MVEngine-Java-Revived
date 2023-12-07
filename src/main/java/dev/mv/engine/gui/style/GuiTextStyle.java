@@ -6,6 +6,7 @@ import dev.mv.engine.gui.style.value.GuiValueMeasurement;
 import dev.mv.engine.logic.unit.Unit;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.font.BitmapFont;
+import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.resources.R;
 import dev.mv.engine.utils.Default;
 
@@ -14,7 +15,7 @@ public class GuiTextStyle implements Default<GuiTextStyle> {
     public GuiValue<Integer> size;
     public GuiValue<Boolean> chroma;
     public GuiValue<Float> chromaTilt, chromaCompress;
-    public GuiValue<BitmapFont> font;
+    public GuiValue<Font> font;
 
     @Override
     public GuiTextStyle setDefault() {
@@ -23,7 +24,7 @@ public class GuiTextStyle implements Default<GuiTextStyle> {
         chroma = new GuiValueJust<>(false);
         chromaTilt = new GuiValueJust<>(0f);
         chromaCompress = new GuiValueJust<>(0f);
-        font = new GuiValueJust<>(R.font.get("mv.default"));
+        font = new GuiValueJust<>(R.font.get("mvengine.default"));
         return this;
     }
 }

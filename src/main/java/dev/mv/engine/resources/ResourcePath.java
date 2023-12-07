@@ -6,6 +6,7 @@ import dev.mv.engine.files.Directory;
 import dev.mv.engine.game.Game;
 import dev.mv.engine.game.mod.loader.ModIntegration;
 import dev.mv.engine.utils.Utils;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,8 +14,9 @@ import java.io.InputStream;
 
 public class ResourcePath {
 
-    private Type type;
-    private String path;
+    Type type;
+    String path;
+    @Nullable String resId;
 
     private ResourcePath(Type type, String path) {
         this.type = type;
@@ -57,6 +59,15 @@ public class ResourcePath {
         return path;
     }
 
+    public ResourcePath setResId(@Nullable String resId) {
+        this.resId = resId;
+        return this;
+    }
+
+    public @Nullable String getResId() {
+        return resId;
+    }
+
     boolean isBlank() {
         return type == Type.BLANK;
     }
@@ -73,7 +84,7 @@ public class ResourcePath {
         return new ResourcePath(Type.GAME_DIR, path);
     }
 
-    static ResourcePath blank(String path) {
+    public static ResourcePath blank(String path) {
         return new ResourcePath(Type.BLANK, path);
     }
 

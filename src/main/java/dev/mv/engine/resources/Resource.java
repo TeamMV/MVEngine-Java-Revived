@@ -35,6 +35,8 @@ public interface Resource {
 
     boolean isLoaded();
 
+    String getResId();
+
     enum Type {
         RESOURCE(CustomResource.class),
         TEXTURE(Texture.class),
@@ -95,7 +97,7 @@ public interface Resource {
                 Constructor<? extends CustomResource> loadMethod = clazz.getDeclaredConstructor(ResourcePath[].class);
                 ResourcePath[] args = new ResourcePath[paths.length - 1];
                 System.arraycopy(paths, 1, args, 0, paths.length - 1);
-                CustomResource res = loadMethod.newInstance(args);
+                CustomResource res = loadMethod.newInstance((Object) args);
                 R.resource.register(resId, res);
             }
         } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {

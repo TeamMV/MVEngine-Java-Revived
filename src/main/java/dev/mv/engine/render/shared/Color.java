@@ -10,18 +10,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
-public class Color implements Resource {
-    private String resId;
+public class Color {
     
-    public static Color WHITE = new Color(255, 255, 255, 255, "white");
-    public static Color BLACK = new Color(0, 0, 0, 255, "black");
-    public static Color RED = new Color(255, 0, 0, 255, "red");
-    public static Color GREEN = new Color(0, 255, 0, 255, "green");
-    public static Color BLUE = new Color(0, 0, 255, 255, "blue");
-    public static Color YELLOW = new Color(255, 255, 0, 255, "yellow");
-    public static Color MAGENTA = new Color(255, 0, 255, 255, "magenta");
-    public static Color CYAN = new Color(0, 255, 255, 255, "cyan");
-    public static Color TRANSPARENT = new Color(0, 0, 0, 0, "transparent");
+    public static Color WHITE = new Color(255, 255, 255, 255);
+    public static Color BLACK = new Color(0, 0, 0, 255);
+    public static Color RED = new Color(255, 0, 0, 255);
+    public static Color GREEN = new Color(0, 255, 0, 255);
+    public static Color BLUE = new Color(0, 0, 255, 255);
+    public static Color YELLOW = new Color(255, 255, 0, 255);
+    public static Color MAGENTA = new Color(255, 0, 255, 255);
+    public static Color CYAN = new Color(0, 255, 255, 255);
+    public static Color TRANSPARENT = new Color(0, 0, 0, 0);
 
     byte r, g, b, a;
 
@@ -30,7 +29,6 @@ public class Color implements Resource {
         this.g = g;
         this.b = b;
         this.a = a;
-        resId = Resource.NO_R;
     }
 
     public Color(int r, int g, int b, int a) {
@@ -38,7 +36,6 @@ public class Color implements Resource {
         this.g = (byte) g;
         this.b = (byte) b;
         this.a = (byte) a;
-        this.resId = Resource.NO_R;
     }
 
     public Color(int color) {
@@ -47,35 +44,6 @@ public class Color implements Resource {
         this.g = col[1];
         this.b = col[2];
         this.a = col[3];
-        this.resId = Resource.NO_R;
-    }
-
-    public Color(byte r, byte g, byte b, byte a, String resId) {
-        this.r = r;
-        this.g = g;
-        this.b = b;
-        this.a = a;
-        this.resId = resId;
-        register();
-    }
-
-    public Color(int r, int g, int b, int a, String resId) {
-        this.r = (byte) r;
-        this.g = (byte) g;
-        this.b = (byte) b;
-        this.a = (byte) a;
-        this.resId = resId;
-        register();
-    }
-
-    public Color(int color, String resId) {
-        byte[] col = ByteUtils.toBytes(color);
-        this.r = col[0];
-        this.g = col[1];
-        this.b = col[2];
-        this.a = col[3];
-        this.resId = resId;
-        register();
     }
 
     public static Color parse(String string) {
@@ -95,7 +63,7 @@ public class Color implements Resource {
             if (colors.length == 4) {
                 a = Integer.parseInt(colors[3], 16);
             }
-            return new Color(r, g, b, a, Resource.NO_R);
+            return new Color(r, g, b, a);
         } else if (string.startsWith("0x")) {
             string = string.replaceAll("0x", "");
             if (!string.matches("-?[0-9a-fA-F]+")) {
@@ -112,7 +80,7 @@ public class Color implements Resource {
             if (colors.length == 4) {
                 a = Integer.parseInt(colors[3], 16);
             }
-            return new Color(r, g, b, a, Resource.NO_R);
+            return new Color(r, g, b, a);
         } else {
             String split = ",";
             if (string.contains(" ") && string.contains(",")) {
@@ -131,7 +99,7 @@ public class Color implements Resource {
             if (colors.length == 4) {
                 a = Integer.parseInt(colors[3]);
             }
-            return new Color(r, g, b, a, Resource.NO_R);
+            return new Color(r, g, b, a);
         }
     }
 
@@ -257,24 +225,5 @@ public class Color implements Resource {
 
     public int toInt() {
         return ByteUtils.intFromBytes(r, g, b, a);
-    }
-
-    @Override
-    public String resId() {
-        return resId;
-    }
-
-    @Override
-    public Type type() {
-        return Type.COLOR;
-    }
-
-    public Color() {}
-
-    @Override
-    public void load(InputStream inputStream, String resId) throws IOException {
-        this.resId = resId;
-        copyFrom(parse(new BufferedReader(new InputStreamReader(inputStream)).lines().collect(Collectors.joining())));
-        
     }
 }

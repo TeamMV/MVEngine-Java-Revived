@@ -9,24 +9,58 @@ import dev.mv.engine.utils.collection.Vec;
 public class ResourceLoader {
     private static final Vec<ResourceReference> refs = new Vec<>();
 
+    private String prefix;
+
+    public ResourceLoader(String prefix) {
+        this.prefix = prefix;
+    }
+
+    private String map(String id) {
+        return prefix + "." + id;
+    }
+
+    private void map(ResourcePath path) {
+        path.path = "/assets/" + prefix + path.path;
+    }
+
     public void markResource(String resId, String classpath, ResourcePath... paths) {
+        resId = map(resId);
+        for (ResourcePath path : paths) {
+            map(path);
+        }
+        if (paths.length > 0) {
+            paths[0].setResId(resId);
+        }
         refs.push(new ResourceReference(resId, Resource.Type.RESOURCE, ArrayUtils.merge(new ResourcePath[] {ResourcePath.blank(classpath)}, paths)));
     }
 
     public void markTexture(String resId, ResourcePath path) {
-        refs.push(new ResourceReference(resId, Resource.Type.TEXTURE, path));
+        resId = map(resId);
+        map(path);
+        refs.push(new ResourceReference(resId, Resource.Type.TEXTURE, path.setResId(resId)));
     }
 
-    public void markFont(String resId, ResourcePath png, ResourcePath fnt) {
-        refs.push(new ResourceReference(resId, Resource.Type.FONT, png, fnt));
+    public void markFont(String resId, ResourcePath... paths) {
+        resId = map(resId);
+        for (ResourcePath path : paths) {
+            map(path);
+        }
+        if (paths.length > 0) {
+            paths[0].setResId(resId);
+        }
+        refs.push(new ResourceReference(resId, Resource.Type.FONT, paths));
     }
 
     public void markSound(String resId, ResourcePath path) {
-        refs.push(new ResourceReference(resId, Resource.Type.SOUND, path));
+        resId = map(resId);
+        map(path);
+        refs.push(new ResourceReference(resId, Resource.Type.SOUND, path.setResId(resId)));
     }
 
     public void markMusic(String resId, ResourcePath path) {
-        refs.push(new ResourceReference(resId, Resource.Type.MUSIC, path));
+
+        map(path);
+        refs.push(new ResourceReference(resId, Resource.Type.MUSIC, path.setResId(resId)));
     }
 
     public void loadAll() {
@@ -44,10 +78,10 @@ public class ResourceLoader {
         }
         for (int i = 0; i < refs.len(); i++) {
             ResourceReference ref = refs.get(i);
-            //if (ref.inputStream == null) {
-            //    progressAction.failed(ref.id);
-            //    continue;
-            //}
+            if (ref.paths[i] == null) {
+                progressAction.failed(ref.id);
+                continue;
+            }
             progressAction.loading(ref.id);
             try {
                 Resource.create(ref.type, ref.id, ref.paths);

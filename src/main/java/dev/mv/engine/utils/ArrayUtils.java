@@ -1,6 +1,7 @@
 package dev.mv.engine.utils;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
 
 public class ArrayUtils {
 
@@ -153,7 +154,11 @@ public class ArrayUtils {
 
     @SafeVarargs
     public static <T> T[] merge(T[]... arrays) {
-        T[] res = arrays[0];
+        int len = 0;
+        for (T[] arr : arrays) {
+            len += arr.length;
+        }
+        T[] res = Arrays.copyOf(arrays[0], len);
         int ptr = arrays[0].length;
         for (int i = 1; i < arrays.length; i++) {
             System.arraycopy(arrays[i], 0, res, ptr, arrays[i].length);

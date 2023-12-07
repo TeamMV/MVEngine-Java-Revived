@@ -58,6 +58,11 @@ public class Sound implements Resource {
         return loaded;
     }
 
+    @Override
+    public String getResId() {
+        return path.getResId();
+    }
+
     public int play() {
         if (state == State.PLAYING) return id;
         if (!loaded) load();

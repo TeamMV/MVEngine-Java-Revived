@@ -71,7 +71,7 @@ public class OpenGLTexture implements Texture {
         create(pixelBuffer);
     }
 
-    public OpenGLTexture(ResourcePath path) throws IOException {
+    public OpenGLTexture(ResourcePath path) {
         this.path = path;
     }
 
@@ -141,5 +141,10 @@ public class OpenGLTexture implements Texture {
     @Override
     public boolean isLoaded() {
         return isLoaded;
+    }
+
+    @Override
+    public String getResId() {
+        return path.getResId();
     }
 }

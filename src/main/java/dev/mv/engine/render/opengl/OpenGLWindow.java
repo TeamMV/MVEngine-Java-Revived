@@ -82,8 +82,6 @@ public class OpenGLWindow implements Window {
 
         if (applicationLoop != null) {
             try {
-                ProgressAction action = applicationLoop.preload(engine, this);
-                engine.loadResources(action);
                 applicationLoop.start(engine, this);
             } catch (Exception e) {
                 Exceptions.send(e);

@@ -1,13 +1,10 @@
 package dev.mv.engine.resources;
 
-import dev.mv.engine.async.Unresolved;
 import dev.mv.engine.audio.Album;
 import dev.mv.engine.audio.Music;
 import dev.mv.engine.audio.Sound;
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.engine.game.language.Language;
 import dev.mv.engine.render.shared.Color;
-import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.render.shared.texture.Texture;
 import dev.mv.engine.render.shared.texture.TextureRegion;
@@ -21,8 +18,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class R {
-    public static String ENGINE_ID = "mvengine";
-
     public static Res<CustomResource> resource = new Res<>();
     public static Res<Texture> texture = new Res<>();
     public static Res<TextureRegion> textureRegion = new Res<>();
@@ -44,21 +39,19 @@ public class R {
         R.isReady = isReady;
     }
 
-    public static class Res<T extends Resource> {
+    public static class Res<T> {
         private Map<String, T> map = new HashMap<>();
 
-        Res() {}
-
-        public T get(String id) {
-            return get(id, null);
+        Res() {
         }
 
-        public T get(String id, Context context) {
-            String prefix = "." + ENGINE_ID;
-            if (context != null) {
-                prefix = "." + context.prefix;
-            }
-            return get0(id.concat(prefix));
+        public T get(String id) {
+            return get0(id);
+        }
+
+        public T get(String id, String prefix) {
+            if (prefix == null || prefix.isBlank()) return get0(id);
+            else return get0(prefix + "." + id);
         }
 
 
@@ -89,9 +82,5 @@ public class R {
                 }
             }
         }
-    }
-
-    public static class Context {
-        private String prefix;
     }
 }

@@ -15,7 +15,7 @@ public class FrameAnimation extends Animation {
     private TextureRegion current;
 
     private FrameAnimation(SpriteCollection sprites) {
-        this(sprites, Resource.NO_R);
+        this(sprites, null);
     }
 
     private FrameAnimation(SpriteCollection sprites, String resId) {
@@ -47,9 +47,6 @@ public class FrameAnimation extends Animation {
         this.delay = getDuration() / (float) amt;
     }
 
-    public FrameAnimation() {}
-
-    @Override
     public void load(InputStream inputStream, String resId) throws IOException {
         throw new UnimplementedException();
     }

@@ -37,4 +37,20 @@ public class ResourceBundle {
         return this;
     }
 
+    public ResourceBundle addCompositeResources(CompositeResource... resources) {
+        for (CompositeResource r : resources) {
+            for (var deps : r.getDependencies()) {
+                if (deps.b == null) continue;
+                switch (deps.a) {
+                    case RESOURCE -> this.resources.push(deps.b);
+                    case TEXTURE -> textures.push(deps.b);
+                    case FONT -> fonts.push(deps.b);
+                    case SOUND -> sounds.push(deps.b);
+                    case MUSIC -> music.push(deps.b);
+                }
+            }
+        }
+        return this;
+    }
+
 }

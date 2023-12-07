@@ -10,6 +10,7 @@ import dev.mv.engine.game.registry.Registries;
 import dev.mv.engine.game.registry.Registry;
 import dev.mv.engine.game.registry.RegistryLoader;
 import dev.mv.engine.game.registry.RegistryType;
+import dev.mv.engine.resources.ResourceLoader;
 import dev.mv.engine.utils.Utils;
 import dev.mv.engine.utils.collection.Vec;
 
@@ -111,9 +112,11 @@ public class Mod {
     public class Manager implements ModManager {
 
         Mod mod;
+        ResourceLoader loader;
 
         Manager(Mod mod) {
             this.mod = mod;
+            loader = new ResourceLoader(mod.id);
         }
 
         @Override
@@ -141,6 +144,11 @@ public class Mod {
         @Override
         public Directory getModConfigDirectory() {
             return MVEngine.instance().getGame().getGameDirectory().getSubDirectory("config").getSubDirectory(id);
+        }
+
+        @Override
+        public ResourceLoader getResourceLoader() {
+            return loader;
         }
     }
 }

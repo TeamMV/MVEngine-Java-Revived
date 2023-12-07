@@ -2,6 +2,7 @@ package dev.mv.engine.gui.elements;
 
 import dev.mv.engine.render.shared.DrawContext;
 import dev.mv.engine.render.shared.font.BitmapFont;
+import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.resources.R;
 
 @GuiParsable(tagName = "textLine", attribs = {
@@ -10,17 +11,14 @@ import dev.mv.engine.resources.R;
 })
 public class GuiTextLine extends GuiElement implements GuiTextElement {
     private String text;
-    private String fontId;
-
-    private BitmapFont font;
 
     public GuiTextLine() {
-        font = R.font.get("mv.default").waitForChecked();
     }
 
     @Override
     public void draw(DrawContext ctx) {
         int fontSize =  style.text.size.resolve(resolveContext);
+        Font font = style.text.font.resolve(resolveContext);
         int width = font.getWidth(text, fontSize);
         contentWidth = width;
         contentHeight = fontSize;
@@ -33,16 +31,6 @@ public class GuiTextLine extends GuiElement implements GuiTextElement {
         ctx.chromaCompress(style.text.chromaCompress.resolve(resolveContext));
         boolean chroma = style.text.chroma.resolve(resolveContext);
         ctx.text(chroma, contentX, contentY, fontSize, text, font, rotation, rotationCenterX, rotationCenterY);
-    }
-
-    @Override
-    public void setFont(BitmapFont font) {
-        this.font = font;
-    }
-
-    @Override
-    public BitmapFont getFont() {
-        return font;
     }
 
     @Override

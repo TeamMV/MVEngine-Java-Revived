@@ -1,32 +1,27 @@
 package dev.mv.engine.render.shared.texture;
 
 import dev.mv.engine.render.shared.create.RenderBuilder;
+import dev.mv.engine.resources.CompositeResource;
 import dev.mv.engine.resources.Resource;
+import dev.mv.engine.utils.generic.pair.Pair;
 
 import java.io.IOException;
 import java.io.InputStream;
 
-public class TextureRegion {
+public class TextureRegion implements CompositeResource {
     Texture tex;
     private int id;
     private int width;
     private int height;
     private float[] uv;
-    private String resId;
 
     public TextureRegion(Texture tex, int x, int y, int width, int height) {
-        this(tex, x, y, width, height, Resource.NO_R);
-    }
-
-    public TextureRegion(Texture tex, int x, int y, int width, int height, String resId) {
         this.width = tex.getWidth();
         this.height = tex.getHeight();
         this.id = tex.getId();
         this.tex = tex;
 
         this.uv = createUV(x, y, width, height);
-        this.resId = resId;
-        
     }
 
     private float[] createUV(int x, int y, int width, int height) {
@@ -55,25 +50,7 @@ public class TextureRegion {
     }
 
     @Override
-    public String resId() {
-        return resId;
-    }
-
-    @Override
-    public Type type() {
-        return Type.TEXTURE_REGION;
-    }
-
-    public TextureRegion() {}
-
-    @Override
-    public void load(InputStream inputStream, String resId) throws IOException {
-        this.resId = resId;
-        tex = RenderBuilder.newTexture(inputStream);
-        width = tex.getWidth();
-        height = tex.getHeight();
-        id = tex.getId();
-        this.uv = createUV(0, 0, width, height);
-        
+    public Pair<Resource.Type, String>[] getDependencies() {
+        return new Pair[] {new Pair<>(Resource.Type.TEXTURE, tex.getResId())};
     }
 }

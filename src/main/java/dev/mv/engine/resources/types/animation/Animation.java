@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.function.Predicate;
 
-public abstract class Animation implements Resource {
+public abstract class Animation {
     private boolean isRunning, infinite;
     private float duration, currentTime;
     protected float delay = 0f;
@@ -147,15 +147,5 @@ public abstract class Animation implements Resource {
 
     public void setOriginY(int originY) {
         this.originY = originY;
-    }
-
-    @Override
-    public String resId() {
-        return resId;
-    }
-
-    @Override
-    public Type type() {
-        return Type.ANIMATION;
     }
 }

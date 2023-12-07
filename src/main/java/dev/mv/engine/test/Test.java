@@ -11,23 +11,17 @@ import dev.mv.engine.gui.style.BorderStyle;
 import dev.mv.engine.gui.style.value.GuiValueJust;
 import dev.mv.engine.gui.style.value.GuiValueMeasurement;
 import dev.mv.engine.logic.unit.Unit;
-import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.render.shared.graphics.Scale;
 import dev.mv.engine.render.shared.*;
 import dev.mv.engine.render.shared.texture.TextureRegion;
 import dev.mv.engine.resources.ProgressAction;
 import dev.mv.engine.resources.R;
 import dev.mv.engine.resources.ResourceLoader;
+import dev.mv.engine.resources.ResourceManager;
 import dev.mv.engine.resources.types.animation.FrameAnimation;
-import dev.mv.engine.resources.types.custom.CustomResource;
-import dev.mv.engine.resources.types.custom.TestCustomResource;
 import dev.mv.engine.resources.types.drawable.Drawable;
 import dev.mv.engine.utils.Utils;
 import dev.mv.engine.utils.logger.Logger;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 public class Test implements ApplicationLoop {
 
@@ -42,8 +36,6 @@ public class Test implements ApplicationLoop {
 
     private Drawable drawable;
 
-    private Sound sound;
-
     private float rot = 0;
 
     private GuiElement guiElement;
@@ -52,23 +44,13 @@ public class Test implements ApplicationLoop {
     }
 
     @Override
-    public ProgressAction preload(MVEngine engine, Window window) {
-        ResourceLoader loader = engine.getResourceLoader();
-        sound = engine.getAudio().newSound("/assets/mvengine/sound/11mono.wav");
-        sound.load();
-        return ProgressAction.simple();
-    }
-
-    @Override
     public void start(MVEngine engine, Window window) {
+        engine.loadResources(ProgressAction.quiet());
         gameDirectory = FileManager.getDirectory("factoryisland");
         ctx = new DrawContext(window);
         camera = window.getCamera();
         camera.setSpeed(0.2f);
         cameraController = new DefaultCameraController(camera);
-
-        TestCustomResource tcr = (TestCustomResource) R.resource.get("myCustomRes").waitForChecked();
-        Logger.info(tcr.string);
 
         GuiTextLine textLine = new GuiTextLine();
         textLine.setText("Hello, World!");
@@ -84,8 +66,6 @@ public class Test implements ApplicationLoop {
         textLine.moveTo(100, 100);
         guiElement = textLine;
 
-        sound.play();
-
         //engine.getAudio().getDJ().loop("bestSong");
     }
 
@@ -98,14 +78,16 @@ public class Test implements ApplicationLoop {
     public void draw(MVEngine engine, Window window) {
         ctx.background(69, 69, 69);
         ctx.color(Color.WHITE);
-        ctx.color(Color.WHITE);
-        ctx.font(R.font.get("roboto").waitForChecked());
+        ctx.font(R.font.get("mvengine.default"));
         ctx.text(false, 100, 100, 16, "Hello");
 
-        sound.setPosition((float) Math.sin(rot), 0.0f, 0.0f);
-
+        ctx.beginClip();
         ctx.color(Color.RED);
-        ctx.rectangle((int) Utils.map((float) Math.sin(rot), -1, 1, 0, window.getWidth()), 100, 50, 50);
+        ctx.circle(150, 150, 100, 50);
+        ctx.endClip();
+        ctx.color(Color.BLUE);
+        ctx.rectangle(0, 100, 300, 50);
+        ctx.clearClip();
 
         rot += 0.1f;
 

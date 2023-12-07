@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SpriteSheet implements Resource {
+public class SpriteSheet {
     private String resId;
     private Map<String, SpriteCollection> collections;
 
@@ -72,19 +72,6 @@ public class SpriteSheet implements Resource {
         return collections.get(name);
     }
 
-    @Override
-    public String resId() {
-        return resId;
-    }
-
-    @Override
-    public Type type() {
-        return Type.SPRITE_SHEET;
-    }
-
-    public SpriteSheet() {}
-
-    @Override
     public void load(InputStream inputStream, String resId) throws IOException {
         throw new UnimplementedException();
     }

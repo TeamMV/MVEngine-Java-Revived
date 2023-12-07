@@ -695,17 +695,17 @@ public class DrawContext {
 
     public void mqxf(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mv.mqxf").waitForChecked());
+        image(x, y, width, height, R.texture.get("mv.mqxf"));
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mv.mqxf").waitForChecked(), rotation);
+        image(x, y, width, height, R.texture.get("mv.mqxf"), rotation);
     }
 
     public void mqxf(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mv.mqxf").waitForChecked(), rotation, originX, originY);
+        image(x, y, width, height, R.texture.get("mv.mqxf"), rotation, originX, originY);
     }
 
     /**
@@ -718,32 +718,32 @@ public class DrawContext {
      */
     public void inflatableGuy(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("inflatableGuy").waitForChecked());
+        image(x, y, width, height, R.texture.get("inflatableGuy"));
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("inflatableGuy").waitForChecked(), rotation);
+        image(x, y, width, height, R.texture.get("inflatableGuy"), rotation);
     }
 
     public void inflatableGuy(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("inflatableGuy").waitForChecked(), rotation, originX, originY);
+        image(x, y, width, height, R.texture.get("inflatableGuy"), rotation, originX, originY);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxfMuscle").waitForChecked());
+        image(x, y, width, height, R.texture.get("mqxfMuscle"));
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxfMuscle").waitForChecked(), rotation);
+        image(x, y, width, height, R.texture.get("mqxfMuscle"), rotation);
     }
 
     public void mqxfMuscle(int x, int y, int width, int height, float rotation, int originX, int originY) {
         color(0, 0, 0, 0);
-        image(x, y, width, height, R.texture.get("mqxfMuscle").waitForChecked(), rotation, originX, originY);
+        image(x, y, width, height, R.texture.get("mqxfMuscle"), rotation, originX, originY);
     }
 
 }

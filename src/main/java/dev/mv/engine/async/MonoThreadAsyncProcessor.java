@@ -76,7 +76,9 @@ public class MonoThreadAsyncProcessor extends Thread {
 
     private synchronized void waitForSignal() {
         try {
-            signal.wait();
+            synchronized (signal) {
+                signal.wait();
+            }
         } catch (Exception e) {
             Exceptions.send(e);
         }

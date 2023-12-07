@@ -18,8 +18,10 @@ public class Fonts {
         byte[][] magics = new byte[paths.length][4];
 
         for (int i = 0; i < paths.length; i++) {
+            if (paths[i] == null) continue;
             try {
                 InputStream stream = paths[i].getInputStream();
+                if (stream == null) continue;
                 stream.mark(4);
                 magics[i] = stream.readNBytes(4);
                 stream.reset();

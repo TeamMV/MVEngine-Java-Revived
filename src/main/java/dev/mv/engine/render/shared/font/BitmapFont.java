@@ -33,6 +33,7 @@ public class BitmapFont implements Font {
     public BitmapFont(ResourcePath pngPath, ResourcePath fntPath) {
         this.pngPath = pngPath;
         this.fntPath = fntPath;
+        chars = new HashMap<>();
     }
 
     private Texture loadTexture(InputStream pngFileStream) throws IOException {
@@ -257,8 +258,8 @@ public class BitmapFont implements Font {
     @Override
     public void load() {
         try {
-                loadTexture(pngPath.getInputStream());
-                createCharacters(fntPath.getInputStream());
+                bitmap = loadTexture(pngPath.getInputStream());
+                chars = createCharacters(fntPath.getInputStream());
                 isLoaded = true;
         } catch (IOException e) {
             Exceptions.send(e);
@@ -275,5 +276,10 @@ public class BitmapFont implements Font {
     @Override
     public boolean isLoaded() {
         return isLoaded;
+    }
+
+    @Override
+    public String getResId() {
+        return pngPath.getResId();
     }
 }

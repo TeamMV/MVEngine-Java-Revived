@@ -13,9 +13,7 @@ import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.opengl.OpenGLWindow;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.BitmapFont;
-import dev.mv.engine.resources.ProgressAction;
-import dev.mv.engine.resources.ResourceLoader;
-import dev.mv.engine.resources.ResourceManager;
+import dev.mv.engine.resources.*;
 import dev.mv.engine.test.Test;
 import dev.mv.engine.utils.logger.Logger;
 import dev.mv.engine.utils.misc.Version;
@@ -47,7 +45,7 @@ public class MVEngine implements AutoCloseable {
     private MVEngine() {
         exceptionHandler = ExceptionHandler.Default.INSTANCE;
         loopers = new ArrayList<>();
-        resourceLoader = new ResourceLoader();
+        resourceLoader = new ResourceLoader("mvengine");
         resourceManager = new ResourceManager();
         Logger.setLoggerOutput((s, logLevel) -> {
             if (logLevel == Logger.LogLevel.WARN || logLevel == Logger.LogLevel.ERROR) {
@@ -180,17 +178,14 @@ public class MVEngine implements AutoCloseable {
         return audio;
     }
 
-    public ResourceLoader getResourceLoader() {
-        return resourceLoader;
-    }
-
     public ResourceManager getResourceManager() {
         return resourceManager;
     }
 
     public void loadResources(ProgressAction action) {
         Env.setResourceReady();
-        ResourceLoader loader = getResourceLoader();
-        loader.loadAll(action);
+        resourceLoader.markFont("default", ResourcePath.internal("/font/default/roboto.png"), ResourcePath.internal("/font/default/roboto.fnt"));
+        resourceLoader.loadAll(action);
+        R.font.get("mvengine.default").load();
     }
 }
