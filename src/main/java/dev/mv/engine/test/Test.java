@@ -2,25 +2,25 @@ package dev.mv.engine.test;
 
 import dev.mv.engine.ApplicationLoop;
 import dev.mv.engine.MVEngine;
-import dev.mv.engine.audio.Sound;
 import dev.mv.engine.files.Directory;
 import dev.mv.engine.files.FileManager;
+import dev.mv.engine.gui.Gui;
 import dev.mv.engine.gui.elements.GuiElement;
 import dev.mv.engine.gui.elements.GuiTextLine;
+import dev.mv.engine.gui.events.listeners.GuiClickListener;
+import dev.mv.engine.gui.events.listeners.GuiEnterListener;
 import dev.mv.engine.gui.style.BorderStyle;
 import dev.mv.engine.gui.style.value.GuiValueJust;
 import dev.mv.engine.gui.style.value.GuiValueMeasurement;
+import dev.mv.engine.input.Input;
+import dev.mv.engine.input.processors.GuiInputProcessor;
 import dev.mv.engine.logic.unit.Unit;
 import dev.mv.engine.render.shared.graphics.Scale;
 import dev.mv.engine.render.shared.*;
 import dev.mv.engine.render.shared.texture.TextureRegion;
 import dev.mv.engine.resources.ProgressAction;
-import dev.mv.engine.resources.R;
-import dev.mv.engine.resources.ResourceLoader;
-import dev.mv.engine.resources.ResourceManager;
 import dev.mv.engine.resources.types.animation.FrameAnimation;
 import dev.mv.engine.resources.types.drawable.Drawable;
-import dev.mv.engine.utils.Utils;
 import dev.mv.engine.utils.logger.Logger;
 
 public class Test implements ApplicationLoop {
@@ -39,6 +39,7 @@ public class Test implements ApplicationLoop {
     private float rot = 0;
 
     private GuiElement guiElement;
+    private Gui gui;
 
     private Test() {
     }
@@ -56,15 +57,36 @@ public class Test implements ApplicationLoop {
         textLine.setText("Hello, World!");
         textLine.style.text.size = new GuiValueMeasurement<>(5, Unit.CM);
         textLine.style.text.color = new GuiValueJust<>(Color.WHITE);
-        textLine.style.border.style = new GuiValueJust<>(BorderStyle.ROUND);
+        textLine.style.border.style = new GuiValueJust<>(BorderStyle.SQUARE);
         textLine.style.border.radius = new GuiValueJust<>(new Scale(100, 75));
         textLine.style.border.width = new GuiValueMeasurement<>(0.3f, Unit.CM);
         textLine.style.border.color = new GuiValueJust<>(Color.WHITE);
         textLine.style.backgroundColor = new GuiValueJust<>(Color.parse("#00b3ff"));
-        textLine.style.padding.setInts(40);
+        textLine.style.padding.setInts(60);
+        textLine.style.margin.setInts(40);
 
         textLine.moveTo(100, 100);
         guiElement = textLine;
+
+        textLine.event.enter((caller, mx, my) -> caller.style.backgroundColor = new GuiValueJust<>(Color.RED));
+        textLine.event.leave((caller, mx, my) -> caller.style.backgroundColor = new GuiValueJust<>(Color.parse("#00b3ff")));
+
+        textLine.event.click((caller, btn, x, y) -> {
+            if (btn == Input.MOUSE_LEFT) {
+                System.out.println("click");
+            }
+        });
+
+        textLine.event.release((caller, btn, x, y) -> {
+            if (btn == Input.MOUSE_LEFT) {
+                System.out.println("release");
+            }
+        });
+
+        gui = new Gui();
+        gui.addElement(textLine);
+
+        GuiInputProcessor.addGui(gui);
 
         //engine.getAudio().getDJ().loop("bestSong");
     }
@@ -76,23 +98,10 @@ public class Test implements ApplicationLoop {
 
     @Override
     public void draw(MVEngine engine, Window window) {
-        ctx.background(69, 69, 69);
-        ctx.color(Color.WHITE);
-        ctx.font(R.font.get("mvengine.default"));
-        ctx.text(false, 100, 100, 16, "Hello");
-
-        ctx.beginClip();
-        ctx.color(Color.RED);
-        ctx.circle(150, 150, 100, 50);
-        ctx.endClip();
-        ctx.color(Color.BLUE);
-        ctx.rectangle(0, 100, 300, 50);
-        ctx.clearClip();
-
         rot += 0.1f;
 
-        //guiElement.draw(ctx);
-        //rot += 0.05f;
+        //gui.draw(ctx);
+        guiElement.drawDebug(ctx);
     }
 
     @Override

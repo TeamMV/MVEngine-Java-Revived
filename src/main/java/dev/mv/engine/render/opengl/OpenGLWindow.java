@@ -77,6 +77,7 @@ public class OpenGLWindow implements Window {
         camera = new Camera();
         clipboard = new Clipboard(this);
         collector = new InputCollector(this);
+        collector.start();
         batchController = new BatchController(this, 1000);
         batchController.start();
 

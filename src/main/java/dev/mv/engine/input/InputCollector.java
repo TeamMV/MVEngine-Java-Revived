@@ -7,6 +7,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 public class InputCollector {
     private InputProcessor processor;
+    private int px, py;
 
     private Window window;
 
@@ -43,8 +44,10 @@ public class InputCollector {
         glfwSetCursorPosCallback(window.getGlfwId(), new GLFWCursorPosCallback() {
             @Override
             public void invoke(long wind, double x, double y) {
-                processor.mouseMoveX((int) x);
-                processor.mouseMoveY(window.getHeight() - (int) y);
+                processor.mouseMoveX((int) x, px);
+                processor.mouseMoveY(window.getHeight() - (int) y, py);
+                px = (int) x;
+                py = window.getHeight() - (int) y;
             }
         });
 

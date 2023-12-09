@@ -13,8 +13,8 @@ public interface InputProcessor extends Toggle {
 
     void mousePress(int btn);
     void mouseRelease(int btn);
-    void mouseMoveX(int x);
-    void mouseMoveY(int y);
+    void mouseMoveX(int x, int prev);
+    void mouseMoveY(int y, int prev);
     void mouseScrollX(float value);
     void mouseScrollY(float value);
 }

@@ -54,13 +54,13 @@ public class InputProcessorDistributor implements InputProcessor {
     }
 
     @Override
-    public void mouseMoveX(int x) {
-        processors.forEach(p -> p.mouseMoveX(x));
+    public void mouseMoveX(int x, int prev) {
+        processors.forEach(p -> p.mouseMoveX(x, prev));
     }
 
     @Override
-    public void mouseMoveY(int y) {
-        processors.forEach(p -> p.mouseMoveY(y));
+    public void mouseMoveY(int y, int prev) {
+        processors.forEach(p -> p.mouseMoveY(y, prev));
     }
 
     @Override

@@ -50,13 +50,13 @@ public class MainInputProcessor implements InputProcessor {
     }
 
     @Override
-    public void mouseMoveX(int x) {
+    public void mouseMoveX(int x, int prev) {
         if (!enabled) return;
         Input.x = x;
     }
 
     @Override
-    public void mouseMoveY(int y) {
+    public void mouseMoveY(int y, int prev) {
         if (!enabled) return;
         Input.y = y;
     }

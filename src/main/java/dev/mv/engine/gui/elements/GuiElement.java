@@ -2,24 +2,32 @@ package dev.mv.engine.gui.elements;
 
 import dev.mv.engine.exceptions.Exceptions;
 import dev.mv.engine.gui.Origin;
+import dev.mv.engine.gui.events.GuiEvents;
 import dev.mv.engine.gui.style.BorderStyle;
 import dev.mv.engine.gui.style.GuiStyle;
 import dev.mv.engine.gui.style.Positioning;
 import dev.mv.engine.gui.style.value.ResolveContext;
+import dev.mv.engine.input.InputProcessor;
+import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.render.shared.graphics.Point;
 import dev.mv.engine.render.shared.graphics.Scale;
 import dev.mv.engine.render.shared.Color;
 import dev.mv.engine.render.shared.DrawContext;
+import dev.mv.engine.resources.R;
 import dev.mv.engine.resources.types.border.*;
 import dev.mv.engine.resources.types.drawable.Drawable;
 
-public abstract class GuiElement {
-    protected int x, y;
-    protected int contentX, contentY;//with padding
+public abstract class GuiElement implements InputProcessor {
+    protected int x, y, bgX, bgY, conX, conY;
     private int relX, relY;
     protected int width, height; //with all
     protected int contentWidth, contentHeight; //without all
     protected int boundingWidth, boundingHeight; //with just padding
+    protected boolean inputEnabled = true;
+
+    protected int[] margins, paddings;
+
+    public GuiEvents event;
 
     public GuiStyle style;
     private Border border;
@@ -33,6 +41,7 @@ public abstract class GuiElement {
     public GuiElement() {
         style = new GuiStyle();
         style.setDefault();
+        event = new GuiEvents(this);
         resolveContext = new ResolveContext();
     }
 
@@ -40,13 +49,13 @@ public abstract class GuiElement {
         resolveContext.parent = parent;
         resolveContext.dpi = ctx.getWindow().dpi();
 
-        int[] paddings = new int[] {
+        paddings = new int[] {
             style.padding.top.resolve(resolveContext),
             style.padding.bottom.resolve(resolveContext),
             style.padding.left.resolve(resolveContext),
             style.padding.right.resolve(resolveContext)
         };
-        int[] margins = new int[] {
+        margins = new int[] {
             style.margin.top.resolve(resolveContext),
             style.margin.bottom.resolve(resolveContext),
             style.margin.left.resolve(resolveContext),
@@ -78,6 +87,11 @@ public abstract class GuiElement {
             y = relY;
         }
 
+        bgX = x + margins[2];
+        bgY = y + margins[1];
+        conX = bgX + paddings[2];
+        conY = bgY + paddings[1];
+
         Point customOrigin = style.customOrigin.resolve(resolveContext);
         if (customOrigin != null) {
             this.x = x + customOrigin.x;
@@ -91,9 +105,6 @@ public abstract class GuiElement {
                 this.y = y + height / 2;
             }
         }
-
-        contentX = x + paddings[2];
-        contentY = y + paddings[1];
 
         Point customRotationCenter = style.customRotationCenter.resolve(resolveContext);
         if (customRotationCenter != null) {
@@ -154,7 +165,7 @@ public abstract class GuiElement {
     }
 
     private void drawBorder(DrawContext ctx) {
-        border.draw(ctx, x, y, boundingWidth, boundingHeight, 0f, rotationCenterX, rotationCenterY);
+        border.draw(ctx, bgX, bgY, boundingWidth, boundingHeight, 0f, rotationCenterX, rotationCenterY);
     }
 
     protected void drawElementBody(DrawContext ctx) {
@@ -168,15 +179,47 @@ public abstract class GuiElement {
             Drawable bg = style.background.resolve(resolveContext);
             bg.setCnvsW(boundingWidth);
             bg.setCnvsH(boundingHeight);
-            bg.draw(ctx, x, y, rotation, rotationCenterX, rotationCenterY);
+            bg.draw(ctx, bgX, bgY, rotation, rotationCenterX, rotationCenterY);
         } else {
             ctx.color(style.backgroundColor.resolve(resolveContext));
-            ctx.rectangle(x, y, boundingWidth, boundingHeight, rotation, rotationCenterX, rotationCenterY);
+            ctx.rectangle(bgX, bgY, boundingWidth, boundingHeight, rotation, rotationCenterX, rotationCenterY);
         }
         drawBorder(ctx);
     }
 
     public abstract void draw(DrawContext ctx);
+
+    public void drawDebug(DrawContext ctx) {
+        int s = 20;
+
+        draw(ctx);
+        //margin frame
+        ctx.color(255, 0, 0, 100);
+        ctx.rectangle(x, y, width, height);
+        //content frame
+        ctx.color(0, 0, 255, 100);
+        ctx.rectangle(conX, conY, contentWidth, contentHeight);
+
+        ctx.color(Color.WHITE);
+        Font font = R.font.get("mvengine.default");
+        ctx.font(font);
+        //display margins
+        ctx.text(false, x, y + height / 2, s, margins[2] + "");
+        ctx.text(false, x + width - font.getWidth(margins[3] + "", s), y + height / 2, s, margins[3] + "");
+        ctx.text(false, x + width / 2, y + height - s, s, margins[0] + "");
+        ctx.text(false, x + width / 2, y, s, margins[1] + "");
+
+        //display paddings
+        ctx.text(false, bgX, bgY + boundingHeight / 2, s, paddings[2] + "");
+        ctx.text(false, bgX + boundingWidth - font.getWidth(paddings[3] + "", s), bgY + boundingHeight / 2, s, paddings[3] + "");
+        ctx.text(false, bgX + boundingWidth / 2, bgY + boundingHeight - s, s, paddings[0] + "");
+        ctx.text(false, bgX + boundingWidth / 2, bgY, s, paddings[1] + "");
+
+        //display sizes
+        ctx.text(false, x, y, s, width + " x " + height);
+        ctx.text(false, bgX, bgY, s, boundingWidth + " x " + boundingHeight);
+        ctx.text(false, conX, conY, s, contentWidth + " x " + contentHeight);
+    }
 
     protected void setParent(GuiElement parent) {
         this.parent = parent;
@@ -191,12 +234,20 @@ public abstract class GuiElement {
         return y;
     }
 
-    public int getContentX() {
-        return contentX;
+    public int getBgX() {
+        return bgX;
     }
 
-    public int getContentY() {
-        return contentY;
+    public int getBgY() {
+        return bgY;
+    }
+
+    public int getConX() {
+        return conX;
+    }
+
+    public int getConY() {
+        return conY;
     }
 
     public int getWidth() {
@@ -225,5 +276,74 @@ public abstract class GuiElement {
 
     public GuiElement getParent() {
         return parent;
+    }
+
+    public boolean inside(int x, int y) {
+        return x > this.x && x < this.x + this.width &&
+                y > this.y && y < this.y + this.height;
+    }
+
+    @Override
+    public void keyPress(int key) {
+        if (!inputEnabled) return;
+        event.keyPress(key);
+    }
+
+    @Override
+    public void keyType(char key) {
+        if (!inputEnabled) return;
+        event.keyType(key);
+    }
+
+    @Override
+    public void keyRelease(int key) {
+        if (!inputEnabled) return;
+        event.keyRelease(key);
+    }
+
+    @Override
+    public void mousePress(int btn) {
+        if (!inputEnabled) return;
+        event.mousePress(btn);
+    }
+
+    @Override
+    public void mouseRelease(int btn) {
+        if (!inputEnabled) return;
+        event.mouseRelease(btn);
+    }
+
+    @Override
+    public void mouseMoveX(int x, int prev) {
+        if (!inputEnabled) return;
+        event.mouseMoveX(x, prev);
+    }
+
+    @Override
+    public void mouseMoveY(int y, int prev) {
+        if (!inputEnabled) return;
+        event.mouseMoveY(y, prev);
+    }
+
+    @Override
+    public void mouseScrollX(float value) {
+        if (!inputEnabled) return;
+        event.mouseScrollX(value);
+    }
+
+    @Override
+    public void mouseScrollY(float value) {
+        if (!inputEnabled) return;
+        event.mouseScrollY(value);
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        inputEnabled = enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return inputEnabled;
     }
 }

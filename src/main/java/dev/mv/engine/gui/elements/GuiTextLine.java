@@ -30,7 +30,7 @@ public class GuiTextLine extends GuiElement implements GuiTextElement {
         ctx.chromaTilt(style.text.chromaTilt.resolve(resolveContext));
         ctx.chromaCompress(style.text.chromaCompress.resolve(resolveContext));
         boolean chroma = style.text.chroma.resolve(resolveContext);
-        ctx.text(chroma, contentX, contentY, fontSize, text, font, rotation, rotationCenterX, rotationCenterY);
+        ctx.text(chroma, conX, conY, fontSize, text, font, rotation, rotationCenterX, rotationCenterY);
     }
 
     @Override
