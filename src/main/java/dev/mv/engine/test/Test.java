@@ -116,6 +116,8 @@ public class Test implements ApplicationLoop {
             System.out.println("button click");
         });
 
+        button.event.enter();
+
         //textLine.setZIndex(5);
 
         gui = new Gui();

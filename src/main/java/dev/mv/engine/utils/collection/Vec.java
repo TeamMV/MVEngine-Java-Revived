@@ -323,8 +323,8 @@ public class Vec<E> implements Iterable<E>, RandomAccess, Cloneable {
     }
 
     public Iterator<E> iterator() {
-        ArrayList<E> arr = new ArrayList<>();
-        Collections.addAll(arr, Arrays.copyOf(data, data.length));
+        ArrayList<E> arr = new ArrayList<>(size);
+        arr.addAll(Arrays.asList(data).subList(0, size));
         return arr.iterator();
     }
 
