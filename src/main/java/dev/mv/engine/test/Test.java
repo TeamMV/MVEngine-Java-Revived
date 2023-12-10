@@ -85,6 +85,8 @@ public class Test implements ApplicationLoop {
             }
         });
 
+        textLine.setTransitionDuration(1000);
+
         GuiTextLine textLine2 = new GuiTextLine();
         textLine2.setText("Hello 2");
         textLine2.style.x = new GuiValueJust<>(100);

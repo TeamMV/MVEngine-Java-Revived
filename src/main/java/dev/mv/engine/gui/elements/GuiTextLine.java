@@ -17,7 +17,7 @@ public class GuiTextLine extends GuiElement implements GuiTextElement {
 
     @Override
     public void draw(DrawContext ctx) {
-        int fontSize =  style.text.size.resolve(resolveContext);
+        var fontSize = style.text.size.resolve(resolveContext);
         Font font = style.text.font.resolve(resolveContext);
         int width = font.getWidth(text, fontSize);
         contentWidth = width;

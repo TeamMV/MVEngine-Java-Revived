@@ -1,16 +1,11 @@
 package dev.mv.engine.render.shared;
 
 import dev.mv.engine.exceptions.Exceptions;
-import dev.mv.engine.resources.Resource;
+import dev.mv.engine.logic.Interpolator;
 import dev.mv.engine.utils.ByteUtils;
+import dev.mv.engine.utils.Utils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.stream.Collectors;
-
-public class Color {
+public class Color implements Interpolator<Color> {
     
     public static Color WHITE = new Color(255, 255, 255, 255);
     public static Color BLACK = new Color(0, 0, 0, 255);
@@ -225,5 +220,15 @@ public class Color {
 
     public int toInt() {
         return ByteUtils.intFromBytes(r, g, b, a);
+    }
+
+    @Override
+    public Color interpolate(Color start, Color end, float percent) {
+        byte interpolatedR = (byte) (Utils.getValue(percent,(int) end.r - (int) start.r) + (int) start.r);
+        byte interpolatedG = (byte) (Utils.getValue(percent,(int) end.g - (int) start.g) + (int) start.g);
+        byte interpolatedB = (byte) (Utils.getValue(percent,(int) end.b - (int) start.b) + (int) start.b);
+        byte interpolatedA = (byte) (Utils.getValue(percent,(int) end.a - (int) start.a) + (int) start.a);
+
+        return new Color(interpolatedR, interpolatedG, interpolatedB, interpolatedA);
     }
 }

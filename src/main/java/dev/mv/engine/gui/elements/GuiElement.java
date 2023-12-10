@@ -12,6 +12,8 @@ import dev.mv.engine.gui.style.GuiStyle;
 import dev.mv.engine.gui.style.Positioning;
 import dev.mv.engine.gui.style.value.ResolveContext;
 import dev.mv.engine.input.InputProcessor;
+import dev.mv.engine.logic.unit.TimeUnit;
+import dev.mv.engine.logic.unit.TimeValue;
 import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.render.shared.graphics.Point;
@@ -35,6 +37,8 @@ public abstract class GuiElement implements InputProcessor {
     protected Gui gui;
 
     protected int[] margins, paddings;
+
+    protected TimeValue transitionDuration = new TimeValue(0, TimeUnit.S);
 
     public GuiEvents event;
     public GuiStyle style;
@@ -62,14 +66,14 @@ public abstract class GuiElement implements InputProcessor {
 
         event.enter((caller, mx, my) -> {
             backupStyle.overlay(style);
-            style.overlay(pseudo.hover);
+            style.transition(pseudo.hover, transitionDuration.getMS(), window, resolveContext);
             if (style.cursor != null && !style.cursor.isNone()) {
                 window.setCursor(style.cursor.resolve(resolveContext));
             }
         });
 
         event.leave((caller, mx, my) -> {
-            style.overlay(backupStyle);
+            style.transition(backupStyle, transitionDuration.getMS(), window, resolveContext);
             if (style.cursor != null && !style.cursor.isNone()) {
                 window.setCursor(style.cursor.resolve(resolveContext));
             }
@@ -93,8 +97,6 @@ public abstract class GuiElement implements InputProcessor {
             style.margin.left.resolve(resolveContext),
             style.margin.right.resolve(resolveContext)
         };
-
-        if (contentWidth < style.border.radius.resolve(resolveContext).x)
 
         if (!style.width.isAuto()) {
             contentWidth = style.width.resolve(resolveContext);
@@ -342,6 +344,19 @@ public abstract class GuiElement implements InputProcessor {
 
     public void setGui(Gui gui) {
         this.gui = gui;
+    }
+
+    public TimeValue getTransitionDuration() {
+        return transitionDuration;
+    }
+
+    public void setTransitionDuration(TimeValue transitionDuration) {
+        this.transitionDuration = transitionDuration;
+    }
+
+    public void setTransitionDuration(float ms) {
+        this.transitionDuration.setUnit(TimeUnit.MS);
+        this.transitionDuration.setValue(ms);
     }
 
     public boolean inside(int x, int y) {
