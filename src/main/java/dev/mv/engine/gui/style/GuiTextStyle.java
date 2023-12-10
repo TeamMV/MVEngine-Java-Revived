@@ -27,4 +27,13 @@ public class GuiTextStyle implements Default<GuiTextStyle> {
         font = new GuiValueJust<>(R.font.get("mvengine.default"));
         return this;
     }
+
+    public void overlay(GuiTextStyle other) {
+        if (other.color != null) color = other.color;
+        if (other.size != null) size = other.size;
+        if (other.chroma != null) chroma = other.chroma;
+        if (other.chromaTilt != null) chromaTilt = other.chromaTilt;
+        if (other.chromaCompress != null) chromaCompress = other.chromaCompress;
+        if (other.font != null) font = other.font;
+    }
 }

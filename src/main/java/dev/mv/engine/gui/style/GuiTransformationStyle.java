@@ -15,4 +15,9 @@ public class GuiTransformationStyle implements Default<GuiTransformationStyle> {
         translation = new GuiValueJust<>(Scale.equal(0));
         return this;
     }
+
+    public void overlay(GuiTransformationStyle other) {
+        if (other.rotation != null) rotation = other.rotation;
+        if (other.translation != null) translation = other.translation;
+    }
 }

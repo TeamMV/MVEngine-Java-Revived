@@ -24,6 +24,13 @@ public class Sides implements Default<Sides> {
         this.right = new GuiValueJust<>(right);
     }
 
+    public void set(GuiValue<Integer> value) {
+        top = value;
+        bottom = value;
+        left = value;
+        right = value;
+    }
+
     public void setInts(int value) {
         setInts(value, value, value, value);
     }

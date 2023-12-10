@@ -3,6 +3,7 @@ package dev.mv.engine.render.opengl;
 import dev.mv.engine.ApplicationLoop;
 import dev.mv.engine.MVEngine;
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.gui.style.Cursor;
 import dev.mv.engine.input.Clipboard;
 import dev.mv.engine.input.Input;
 import dev.mv.engine.input.InputCollector;
@@ -403,6 +404,11 @@ public class OpenGLWindow implements Window {
     @Override
     public double getDeltaTime() {
         return deltaF;
+    }
+
+    @Override
+    public void setCursor(Cursor cursor) {
+        glfwSetCursor(window, cursor.getGLFW());
     }
 
     public WindowCreateInfo getWindowCreateInfo() {

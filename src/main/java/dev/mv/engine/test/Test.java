@@ -5,11 +5,14 @@ import dev.mv.engine.MVEngine;
 import dev.mv.engine.files.Directory;
 import dev.mv.engine.files.FileManager;
 import dev.mv.engine.gui.Gui;
+import dev.mv.engine.gui.elements.GuiButton;
 import dev.mv.engine.gui.elements.GuiElement;
 import dev.mv.engine.gui.elements.GuiTextLine;
 import dev.mv.engine.gui.events.listeners.GuiClickListener;
 import dev.mv.engine.gui.events.listeners.GuiEnterListener;
 import dev.mv.engine.gui.style.BorderStyle;
+import dev.mv.engine.gui.style.Cursor;
+import dev.mv.engine.gui.style.Positioning;
 import dev.mv.engine.gui.style.value.GuiValueJust;
 import dev.mv.engine.gui.style.value.GuiValueMeasurement;
 import dev.mv.engine.input.Input;
@@ -63,13 +66,12 @@ public class Test implements ApplicationLoop {
         textLine.style.border.color = new GuiValueJust<>(Color.WHITE);
         textLine.style.backgroundColor = new GuiValueJust<>(Color.parse("#00b3ff"));
         textLine.style.padding.setInts(60);
-        textLine.style.margin.setInts(40);
+        //textLine.style.margin.setInts(40);
 
-        textLine.moveTo(100, 100);
+        textLine.moveTo(120, 120);
         guiElement = textLine;
 
-        textLine.event.enter((caller, mx, my) -> caller.style.backgroundColor = new GuiValueJust<>(Color.RED));
-        textLine.event.leave((caller, mx, my) -> caller.style.backgroundColor = new GuiValueJust<>(Color.parse("#00b3ff")));
+        textLine.pseudo.hover.backgroundColor = new GuiValueJust<>(Color.RED);
 
         textLine.event.click((caller, btn, x, y) -> {
             if (btn == Input.MOUSE_LEFT) {
@@ -83,8 +85,44 @@ public class Test implements ApplicationLoop {
             }
         });
 
+        GuiTextLine textLine2 = new GuiTextLine();
+        textLine2.setText("Hello 2");
+        textLine2.style.x = new GuiValueJust<>(100);
+        textLine2.style.y = new GuiValueJust<>(100);
+        textLine2.style.positioning = new GuiValueJust<>(Positioning.ABSOLUTE);
+        textLine2.style.text.size = new GuiValueMeasurement<>(3, Unit.CM);
+
+        textLine2.pseudo.hover.backgroundColor = new GuiValueJust<>(Color.RED);
+
+        GuiTextLine textLine3 = new GuiTextLine();
+        textLine3.setText("Hello 3");
+        textLine3.style.x = new GuiValueJust<>(150);
+        textLine3.style.y = new GuiValueJust<>(150);
+        textLine3.style.positioning = new GuiValueJust<>(Positioning.ABSOLUTE);
+        textLine3.style.text.size = new GuiValueMeasurement<>(3, Unit.CM);
+
+        textLine3.pseudo.hover.backgroundColor = new GuiValueJust<>(Color.RED);
+
+        GuiButton button = new GuiButton();
+        button.style.border.radius = new GuiValueJust<>(Scale.equal(20));
+        button.style.text.size = new GuiValueMeasurement<>(2, Unit.CM);
+
+        button.pseudo.hover.backgroundColor = new GuiValueJust<>(Color.GREEN);
+        button.pseudo.hover.cursor = new GuiValueJust<>(Cursor.HAND);
+
+        button.moveTo(250, 150);
+        button.setText("Click me");
+        button.onclick((caller, btn, x, y) -> {
+            System.out.println("button click");
+        });
+
+        //textLine.setZIndex(5);
+
         gui = new Gui();
         gui.addElement(textLine);
+        gui.addElement(textLine2);
+        gui.addElement(textLine3);
+        gui.addElement(button);
 
         GuiInputProcessor.addGui(gui);
 
@@ -98,10 +136,11 @@ public class Test implements ApplicationLoop {
 
     @Override
     public void draw(MVEngine engine, Window window) {
+        ctx.background(69, 69, 69);
         rot += 0.1f;
 
-        //gui.draw(ctx);
-        guiElement.drawDebug(ctx);
+        gui.draw(ctx);
+        //guiElement.drawDebug(ctx);
     }
 
     @Override

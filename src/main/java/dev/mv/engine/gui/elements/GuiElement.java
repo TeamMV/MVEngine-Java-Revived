@@ -1,13 +1,18 @@
 package dev.mv.engine.gui.elements;
 
 import dev.mv.engine.exceptions.Exceptions;
+import dev.mv.engine.gui.Gui;
 import dev.mv.engine.gui.Origin;
 import dev.mv.engine.gui.events.GuiEvents;
+import dev.mv.engine.gui.events.listeners.GuiEnterListener;
+import dev.mv.engine.gui.events.listeners.GuiLeaveListener;
 import dev.mv.engine.gui.style.BorderStyle;
+import dev.mv.engine.gui.style.GuiPseudos;
 import dev.mv.engine.gui.style.GuiStyle;
 import dev.mv.engine.gui.style.Positioning;
 import dev.mv.engine.gui.style.value.ResolveContext;
 import dev.mv.engine.input.InputProcessor;
+import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.Font;
 import dev.mv.engine.render.shared.graphics.Point;
 import dev.mv.engine.render.shared.graphics.Scale;
@@ -17,6 +22,8 @@ import dev.mv.engine.resources.R;
 import dev.mv.engine.resources.types.border.*;
 import dev.mv.engine.resources.types.drawable.Drawable;
 
+import java.util.Arrays;
+
 public abstract class GuiElement implements InputProcessor {
     protected int x, y, bgX, bgY, conX, conY;
     private int relX, relY;
@@ -24,12 +31,17 @@ public abstract class GuiElement implements InputProcessor {
     protected int contentWidth, contentHeight; //without all
     protected int boundingWidth, boundingHeight; //with just padding
     protected boolean inputEnabled = true;
+    protected int zIndex = -1;
+    protected Gui gui;
 
     protected int[] margins, paddings;
 
     public GuiEvents event;
-
     public GuiStyle style;
+    public GuiPseudos pseudo;
+
+    private GuiStyle backupStyle;
+
     private Border border;
 
     protected int rotationCenterX, rotationCenterY;
@@ -38,14 +50,34 @@ public abstract class GuiElement implements InputProcessor {
     protected GuiElement parent = null;
     protected ResolveContext resolveContext;
 
+    protected Window window;
+
     public GuiElement() {
         style = new GuiStyle();
+        backupStyle = new GuiStyle();
         style.setDefault();
         event = new GuiEvents(this);
         resolveContext = new ResolveContext();
+        pseudo = new GuiPseudos();
+
+        event.enter((caller, mx, my) -> {
+            backupStyle.overlay(style);
+            style.overlay(pseudo.hover);
+            if (style.cursor != null && !style.cursor.isNone()) {
+                window.setCursor(style.cursor.resolve(resolveContext));
+            }
+        });
+
+        event.leave((caller, mx, my) -> {
+            style.overlay(backupStyle);
+            if (style.cursor != null && !style.cursor.isNone()) {
+                window.setCursor(style.cursor.resolve(resolveContext));
+            }
+        });
     }
 
     protected void calculateValues(DrawContext ctx) {
+        window = ctx.getWindow();
         resolveContext.parent = parent;
         resolveContext.dpi = ctx.getWindow().dpi();
 
@@ -187,6 +219,11 @@ public abstract class GuiElement implements InputProcessor {
         drawBorder(ctx);
     }
 
+    public void draw(DrawContext ctx, int zIndex) {
+        if (this.zIndex != zIndex) return;
+        draw(ctx);
+    }
+
     public abstract void draw(DrawContext ctx);
 
     public void drawDebug(DrawContext ctx) {
@@ -278,7 +315,46 @@ public abstract class GuiElement implements InputProcessor {
         return parent;
     }
 
+    public int getZIndex() {
+        return zIndex;
+    }
+
+    public void setZIndex(int zIndex) {
+        zIndex = Math.max(0, zIndex);
+        if (gui != null) {
+            gui.setZ(zIndex);
+        }
+        this.zIndex = zIndex;
+    }
+
+    public void setZIndexIfAbsent(int zIndex) {
+        if (this.zIndex == -1) {
+            this.zIndex = zIndex;
+            if (gui != null) {
+                gui.setZ(zIndex);
+            }
+        }
+    }
+
+    public Gui getGui() {
+        return gui;
+    }
+
+    public void setGui(Gui gui) {
+        this.gui = gui;
+    }
+
     public boolean inside(int x, int y) {
+        if (gui != null) {
+            for (GuiElement e : gui.elements()) {
+                if (e.getZIndex() > zIndex) {
+                    if (e.inside(x, y)) {
+                        return false;
+                    }
+                }
+            }
+        }
+
         return x > this.x && x < this.x + this.width &&
                 y > this.y && y < this.y + this.height;
     }

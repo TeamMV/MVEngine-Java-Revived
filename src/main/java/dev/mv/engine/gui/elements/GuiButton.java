@@ -1,19 +1,10 @@
 package dev.mv.engine.gui.elements;
 
 import dev.mv.engine.render.shared.DrawContext;
-import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.render.shared.font.Font;
-import dev.mv.engine.resources.R;
 
-@GuiParsable(tagName = "textLine", attribs = {
-        @Attrib(name = "text", field = "text"),
-        @Attrib(name = "font", field = "fontId"),
-})
-public class GuiTextLine extends GuiElement implements GuiTextElement {
+public class GuiButton extends GuiClickElement implements GuiTextElement {
     private String text = "";
-
-    public GuiTextLine() {
-    }
 
     @Override
     public void draw(DrawContext ctx) {

@@ -10,6 +10,8 @@ public class GuiInputProcessor implements InputProcessor {
 
     private static final GuiInputProcessor instance = new GuiInputProcessor();
 
+    public static int mouseX, mouseY;
+
     private GuiInputProcessor() {
         InputProcessor.distributor().serveProcessor(this);
     }
@@ -54,12 +56,14 @@ public class GuiInputProcessor implements InputProcessor {
 
     @Override
     public void mouseMoveX(int x, int prev) {
+        mouseX = x;
         if (!enabled) return;
         guis.forEach(g -> g.mouseMoveX(x, prev));
     }
 
     @Override
     public void mouseMoveY(int y, int prev) {
+        mouseY = y;
         if (!enabled) return;
         guis.forEach(g -> g.mouseMoveY(y, prev));
     }
