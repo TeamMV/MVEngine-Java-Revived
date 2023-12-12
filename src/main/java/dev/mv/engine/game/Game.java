@@ -88,7 +88,7 @@ public abstract class Game {
 
     public abstract @NotNull ModState getModState();
 
-    protected enum ModState {
+    public enum ModState {
         /**
          * The version of the game will not try to load mods no matter what, nothing can change its opinion on that >:D.
          */
