@@ -124,6 +124,7 @@ public class OpenGLTexture implements Texture {
 
     @Override
     public void load() {
+        if (isLoaded) return;
         try {
             createFromBufferedImage(ImageIO.read(path.getInputStream()));
             isLoaded = true;
@@ -134,6 +135,7 @@ public class OpenGLTexture implements Texture {
 
     @Override
     public void drop() {
+        if (!isLoaded) return;
         glDeleteTextures(id);
         isLoaded = false;
     }

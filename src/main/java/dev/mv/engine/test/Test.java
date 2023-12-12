@@ -50,6 +50,7 @@ public class Test implements ApplicationLoop {
     @Override
     public void start(MVEngine engine, Window window) {
         engine.loadResources(ProgressAction.quiet());
+        engine.createResources();
         gameDirectory = FileManager.getDirectory("factoryisland");
         ctx = new DrawContext(window);
         camera = window.getCamera();

@@ -22,9 +22,7 @@ public class Fonts {
             try {
                 InputStream stream = paths[i].getInputStream();
                 if (stream == null) continue;
-                stream.mark(4);
                 magics[i] = stream.readNBytes(4);
-                stream.reset();
             } catch (Exception e) {
                 Exceptions.send(e);
             }

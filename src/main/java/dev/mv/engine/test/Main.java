@@ -29,5 +29,7 @@ public class Main {
             Window window = engine.createWindow(info);
             window.run(Test.INSTANCE);
         }
+
+        MVEngine.finish();
     }
 }

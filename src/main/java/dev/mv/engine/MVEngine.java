@@ -15,9 +15,12 @@ import dev.mv.engine.render.shared.Window;
 import dev.mv.engine.render.shared.font.BitmapFont;
 import dev.mv.engine.resources.*;
 import dev.mv.engine.test.Test;
+import dev.mv.engine.utils.Infallible;
 import dev.mv.engine.utils.logger.Logger;
 import dev.mv.engine.utils.misc.Version;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.opengl.GL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -186,6 +189,13 @@ public class MVEngine implements AutoCloseable {
         Env.setResourceReady();
         resourceLoader.markFont("default", ResourcePath.internal("/font/default/roboto.png"), ResourcePath.internal("/font/default/roboto.fnt"));
         resourceLoader.loadAll(action);
+    }
+
+    public void createResources() {
         R.font.get("mvengine.default").load();
+    }
+
+    public static @NotNull Infallible finish() {
+        return Infallible.exit(0);
     }
 }

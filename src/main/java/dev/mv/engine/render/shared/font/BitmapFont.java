@@ -257,6 +257,7 @@ public class BitmapFont implements Font {
 
     @Override
     public void load() {
+        if (isLoaded) return;
         try {
                 bitmap = loadTexture(pngPath.getInputStream());
                 chars = createCharacters(fntPath.getInputStream());
@@ -268,6 +269,7 @@ public class BitmapFont implements Font {
 
     @Override
     public void drop() {
+        if (!isLoaded) return;
         chars.clear();
         bitmap.drop();
         isLoaded = false;
