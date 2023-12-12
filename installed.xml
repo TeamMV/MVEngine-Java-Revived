@@ -6,7 +6,7 @@
 
     <groupId>dev.mv</groupId>
     <artifactId>engine</artifactId>
-    <version>1.0</version>
+    <version>0.5.3</version>
     <name>MV Engine</name>
     <description>A game engine coded in java</description>
 
@@ -22,8 +22,8 @@
     </developers>
 
     <properties>
-        <maven.compiler.source>18</maven.compiler.source>
-        <maven.compiler.target>18</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
         <project.source.encoding>UTF-8</project.source.encoding>
     </properties>
 

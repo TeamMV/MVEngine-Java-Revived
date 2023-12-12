@@ -29,7 +29,7 @@ public class MVEngine implements AutoCloseable {
 
     private static volatile MVEngine instance;
 
-    public String VERSION_STR = "v0.5.2";
+    public String VERSION_STR = "v0.5.3";
     public Version VERSION = Version.parse(VERSION_STR);
     private ApplicationConfig.RenderingAPI renderingApi = ApplicationConfig.RenderingAPI.OPENGL;
     private ApplicationConfig applicationConfig;
