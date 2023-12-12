@@ -66,4 +66,6 @@ public interface Window {
     double getDeltaTime();
 
     void setCursor(Cursor cursor);
+
+    void close();
 }

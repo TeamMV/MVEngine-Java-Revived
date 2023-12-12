@@ -412,6 +412,11 @@ public class OpenGLWindow implements Window {
         glfwSetCursor(window, cursor.getGLFW());
     }
 
+    @Override
+    public void close() {
+        glfwSetWindowShouldClose(window, true);
+    }
+
     public WindowCreateInfo getWindowCreateInfo() {
         return info;
     }
