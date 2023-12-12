@@ -155,6 +155,9 @@ public class GuiStyle implements Default<GuiStyle> {
             int intEnd = e.intValue();
             int intStart = s.intValue();
             float value = Utils.getValue(percentage, intEnd - intStart) + intEnd;
+            if (start instanceof Integer) {
+                return new GuiValueJust<>((T) (Integer) (int) value);
+            }
             return new GuiValueJust<>((T) (Object) value);
         } else if (start instanceof Interpolator<?>) {
             Interpolator<T> inter = (Interpolator<T>) start;
