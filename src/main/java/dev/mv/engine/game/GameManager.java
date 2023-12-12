@@ -20,7 +20,7 @@ public class GameManager {
 
     public void mainWindow(WindowStyle... styles) {
         mainWindow = MVEngine.instance().createWindow(parse(styles));
-        mainWindow.run(new WindowManager(game));
+        //mainWindow.run(new WindowManager(game));
     }
 
     //public void extraWindow(String id, WindowStyle... styles) {
