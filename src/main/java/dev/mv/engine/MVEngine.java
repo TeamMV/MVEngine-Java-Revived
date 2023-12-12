@@ -8,6 +8,7 @@ import dev.mv.engine.game.Game;
 import dev.mv.engine.input.Input;
 import dev.mv.engine.input.InputCollector;
 import dev.mv.engine.input.InputProcessor;
+import dev.mv.engine.input.processors.MainInputProcessor;
 import dev.mv.engine.physics.Physics;
 import dev.mv.engine.render.WindowCreateInfo;
 import dev.mv.engine.render.opengl.OpenGLWindow;
@@ -92,6 +93,9 @@ public class MVEngine implements AutoCloseable {
         if (_2d) {
             instance.physics = Physics.init();
         }
+
+        //This isn't useless
+        MainInputProcessor.getInstance();
 
         AsyncManager.init(config.getAmountAsyncWorkers());
 
