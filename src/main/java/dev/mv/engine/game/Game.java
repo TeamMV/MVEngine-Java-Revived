@@ -17,11 +17,11 @@ import org.jetbrains.annotations.NotNull;
 
 public abstract class Game {
 
-    private Directory gameDirectory;
-    private ConfigFile config;
-    private GameManager manager;
-    private ResourceLoader loader;
-    private boolean modded;
+    protected Directory gameDirectory;
+    protected ConfigFile config;
+    protected GameManager manager;
+    protected ResourceLoader loader;
+    protected boolean modded;
 
     protected Game() {
         MVEngine.instance().setGame(this);
@@ -29,7 +29,7 @@ public abstract class Game {
         loader = new ResourceLoader(getGameId());
     }
 
-    private void setupGameDir() {
+    protected void setupGameDir() {
         gameDirectory = FileManager.getDirectory(getGameId());
         config = gameDirectory.getConfigFile("game.cfg");
     }
