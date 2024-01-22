@@ -19,8 +19,10 @@ public class MainInputProcessor implements InputProcessor {
     @Override
     public void keyPress(int key) {
         if (!enabled) return;
-        Input.keys[key] = true;
-        Input.keyStates[key] = InputState.JUST_PRESSED;
+        if (key < Input.KEYS && key > 0) {
+            Input.keys[key] = true;
+            Input.keyStates[key] = InputState.JUST_PRESSED;
+        }
     }
 
     @Override
@@ -31,8 +33,10 @@ public class MainInputProcessor implements InputProcessor {
     @Override
     public void keyRelease(int key) {
         if (!enabled) return;
-        Input.keys[key] = false;
-        Input.keyStates[key] = InputState.JUST_RELEASED;
+        if (key < Input.KEYS && key > 0) {
+            Input.keys[key] = false;
+            Input.keyStates[key] = InputState.JUST_RELEASED;
+        }
     }
 
     @Override

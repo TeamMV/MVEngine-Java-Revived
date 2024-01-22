@@ -60,7 +60,7 @@ public class SpriteSheet {
                 if (parser.hasAttrib("count")) {
                     collection = new SpriteCollection(texture, start, width, height, parser.intAttrib("count"));
                 } else {
-                    collection = new SpriteCollection(texture, start, width, height, parser);
+                    collection = new SpriteCollection(texture, start, width, height, parser.inner());
                 }
 
                 collections.put(parser.requireAttrib("name"), collection);

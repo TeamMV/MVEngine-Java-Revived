@@ -1,0 +1,8 @@
+<sprites>
+    <collection name="grassland" size="20">
+        <sprite name="tile_left"/>
+        <sprite name="tile_right"/>
+        <sprite name="tile_lava_1"/>
+        <sprite name="tile_lava_2"/>
+    </collection>
+</sprites>
